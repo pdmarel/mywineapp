@@ -1,0 +1,281 @@
+{
+ "fonte": "Vocabolario degli aromi del vino: 18 categorie, 150 voci",
+ "categorie": [
+  {
+   "id": "sottobosco",
+   "nome": "Sottobosco",
+   "colore": "#4F7B4A",
+   "aromi": [
+    "Fungo",
+    "Humus",
+    "Muschio",
+    "Legno di pino",
+    "Umami"
+   ]
+  },
+  {
+   "id": "vegetali-secchi",
+   "nome": "Vegetali secchi",
+   "colore": "#8A9B4E",
+   "aromi": [
+    "Fungo secco",
+    "Origano",
+    "Aneto",
+    "Rosmarino secco",
+    "Timo secco",
+    "Tarassaco",
+    "Anice stellato",
+    "Alloro secco",
+    "Coriandolo secco",
+    "Fieno"
+   ]
+  },
+  {
+   "id": "vegetali-freschi",
+   "nome": "Vegetali freschi",
+   "colore": "#73B876",
+   "aromi": [
+    "Finocchio",
+    "Sedano",
+    "Foglia di pomodoro",
+    "Erba fresca",
+    "Peperone",
+    "Asparago",
+    "Coriandolo fresco",
+    "Finocchietto selvatico"
+   ]
+  },
+  {
+   "id": "erbe-aromatiche",
+   "nome": "Erbe aromatiche",
+   "colore": "#9BC98A",
+   "aromi": [
+    "Rosmarino",
+    "Salvia",
+    "Menta",
+    "Basilico",
+    "Alloro",
+    "Eucalipto (caramella)",
+    "Caramelle al pino",
+    "Fiori di sambuco"
+   ]
+  },
+  {
+   "id": "floreali",
+   "nome": "Floreali",
+   "colore": "#614789",
+   "aromi": [
+    "Margherita",
+    "Viola",
+    "Lantana",
+    "Rosa",
+    "Gelsomino",
+    "Foglia di geranio",
+    "Acacia",
+    "Tiglio"
+   ]
+  },
+  {
+   "id": "fruttati-vino-bianco",
+   "nome": "Fruttati vino bianco",
+   "colore": "#CCA93D",
+   "aromi": [
+    "Mela gialla",
+    "Pera",
+    "Lime",
+    "Limone",
+    "Mandarino",
+    "Banana",
+    "Ananas",
+    "Arancia",
+    "Albicocca",
+    "Passion fruit",
+    "Mango",
+    "Litchi",
+    "Pesca gialla",
+    "Pesca bianca",
+    "Melone bianco",
+    "Scorza di arancia",
+    "Camomilla",
+    "Uva spina"
+   ]
+  },
+  {
+   "id": "fruttati-vino-rosso",
+   "nome": "Fruttati vino rosso",
+   "colore": "#E88680",
+   "aromi": [
+    "Mirtillo",
+    "Mora",
+    "Lampone",
+    "Ribes rosso",
+    "Ciliegia",
+    "Marasca",
+    "Fragola"
+   ]
+  },
+  {
+   "id": "fruttati-evoluti",
+   "nome": "Fruttati evoluti",
+   "colore": "#B5533F",
+   "aromi": [
+    "Uva sultanina",
+    "Marmellata di fragole",
+    "Marmellata di mirtilli",
+    "Marmellata di prugna",
+    "Marmellata di albicocca",
+    "Marmellata di arancia",
+    "Canditi",
+    "Fico essiccato",
+    "Dattero",
+    "Fiori d'arancio",
+    "Albicocca secca",
+    "Ciliegia sotto spirito",
+    "Prugna secca"
+   ]
+  },
+  {
+   "id": "frutta-secca",
+   "nome": "Frutta secca",
+   "colore": "#C9A47E",
+   "aromi": [
+    "Mandorla",
+    "Mandorla sgusciata",
+    "Nocciola tostata",
+    "Noce"
+   ]
+  },
+  {
+   "id": "spezie",
+   "nome": "Spezie",
+   "colore": "#D98A3D",
+   "aromi": [
+    "Cannella",
+    "Cardamomo",
+    "Chiodi di garofano",
+    "Noce moscata",
+    "Pepe nero",
+    "Pepe bianco",
+    "Pepe rosso",
+    "Pepe rosa",
+    "Pepe Sichuan",
+    "Semi di senape",
+    "Vaniglia",
+    "Cumino",
+    "Ginepro",
+    "Liquirizia",
+    "Zenzero macinato",
+    "Zenzero fresco"
+   ]
+  },
+  {
+   "id": "dolce-pasticceria",
+   "nome": "Dolce / pasticceria",
+   "colore": "#DDBB6E",
+   "aromi": [
+    "Torrone",
+    "Panettone",
+    "Miele",
+    "Amaretto"
+   ]
+  },
+  {
+   "id": "lieviti",
+   "nome": "Lieviti",
+   "colore": "#E8D9A0",
+   "aromi": [
+    "Lievito",
+    "Burro",
+    "Biscotto",
+    "Crosta di pane"
+   ]
+  },
+  {
+   "id": "tostato-legno",
+   "nome": "Tostato / legno",
+   "colore": "#7A4B32",
+   "aromi": [
+    "Fetta biscottata",
+    "Caffè",
+    "Bacon",
+    "Pane tostato",
+    "Cioccolato bianco",
+    "Caramello",
+    "Cioccolato fondente",
+    "Cacao",
+    "Tabacco",
+    "Trucioli di legno",
+    "Affumicato"
+   ]
+  },
+  {
+   "id": "animale",
+   "nome": "Animale",
+   "colore": "#7A3B4A",
+   "aromi": [
+    "Foxy",
+    "Carne essiccata",
+    "Pelle",
+    "Cuoio",
+    "Ematico / ferro",
+    "Sudore"
+   ]
+  },
+  {
+   "id": "difetti",
+   "nome": "Difetti",
+   "colore": "#6E7F6B",
+   "aromi": [
+    "Alga",
+    "Pneumatico",
+    "Cipolla",
+    "Mais",
+    "Olive verdi",
+    "Sapone",
+    "Salsa di soia",
+    "Canfora",
+    "Spinaci",
+    "Tappo di sughero (TCA)",
+    "Uovo marcio",
+    "Aceto"
+   ]
+  },
+  {
+   "id": "chimici",
+   "nome": "Chimici",
+   "colore": "#5C7A8A",
+   "aromi": [
+    "Lucido da scarpe",
+    "Smalto",
+    "Solvente",
+    "Gasolio",
+    "Catrame",
+    "Cera d'api",
+    "Inchiostro"
+   ]
+  },
+  {
+   "id": "minerale",
+   "nome": "Minerale",
+   "colore": "#9CA3A8",
+   "aromi": [
+    "Pietra lavica",
+    "Gesso",
+    "Ghiaia",
+    "Polvere da sparo",
+    "Pietra focaia",
+    "Salino"
+   ]
+  },
+  {
+   "id": "vari",
+   "nome": "Vari",
+   "colore": "#8C7B8F",
+   "aromi": [
+    "Chupa chups",
+    "Borotalco",
+    "Incenso"
+   ]
+  }
+ ]
+}

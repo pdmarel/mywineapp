@@ -1,0 +1,41 @@
+# segreti
+.env
+.env.local
+.env.*.local
+
+# dipendenze e build
+node_modules/
+.next/
+out/
+.vercel/
+
+# supabase locale
+supabase/.temp/
+supabase/.branches/
+
+# foto e dati scaricati per l'importazione dal vecchio foglio
+import-dati/
+
+# varie
+*.log
+.DS_Store
+Thumbs.db
+
+# next
+next-env.d.ts
+*.tsbuildinfo
+
+# appunti con chiavi in chiaro: mai nel repository
+chiavi API.txt
+chiavi*.txt
+
+.vercel
+.env*
+
+# dati e lavori personali: mai nel repository
+STATO.md
+etichette-scaffali/
+scripts/import-esegui.mjs
+scripts/import-prepara.py
+scripts/etichette-scaffali.mjs
+scripts/spostamenti-docx.py

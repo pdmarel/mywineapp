@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --sfondo: #faf7f2;
+  --carta: #ffffff;
+  --inchiostro: #2b2320;
+  --tenue: #7a6f69;
+  --bordo: #e4dbd1;
+  --vino: #8e3b46;
+  --vino-scuro: #6f2c36;
+  --ambra: #c8892b;
+}
+
+@theme inline {
+  --color-sfondo: var(--sfondo);
+  --color-carta: var(--carta);
+  --color-inchiostro: var(--inchiostro);
+  --color-tenue: var(--tenue);
+  --color-bordo: var(--bordo);
+  --color-vino: var(--vino);
+  --color-vino-scuro: var(--vino-scuro);
+  --color-ambra: var(--ambra);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--sfondo);
+  color: var(--inchiostro);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Campi e pulsanti grandi: l'app si usa col telefono in cantina. */
+.campo {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--bordo);
+  border-radius: 12px;
+  background: var(--carta);
+  font-size: 16px; /* sotto i 16px iPhone ingrandisce la pagina al tocco */
+}
+.campo:focus {
+  outline: 2px solid var(--vino);
+  outline-offset: 1px;
+}
+.pulsante {
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: var(--vino);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pulsante:hover {
+  background: var(--vino-scuro);
+}
+.pulsante:disabled {
+  opacity: 0.6;
+}
+.scheda {
+  background: var(--carta);
+  border: 1px solid var(--bordo);
+  border-radius: 16px;
+  padding: 16px;
+}

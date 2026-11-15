@@ -1,0 +1,14 @@
+# Cosa NON caricare su Vercel. Attenzione: quando esiste questo file, Vercel non legge più .gitignore.
+node_modules
+.next
+out
+.vercel
+.env
+.env.*
+!.env.example
+chiavi*.txt
+/import-dati
+/STATO.md
+/supabase
+*.log
+/scripts
