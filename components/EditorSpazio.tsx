@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import type { Posizione } from "./Spazio3D";
 import { VistaSpazio } from "./VistaSpazio";
 import { useT } from "@/lib/i18n/client";
-import { ASSI, MASSIMO, categoriaDi, categorieDi, coloreDi, racconto, type Parte, type Punto } from "@/lib/spazio";
+import { AMPIEZZA_MINIMA, ASSI, MASSIMO, categoriaDi, categorieDi, coloreDi, racconto, type Estremo, type Parte, type Punto } from "@/lib/spazio";
 
 // Editor dello spazio 3D di una parte della degustazione (olfatto o bocca).
 // Si aggiunge un punto scegliendo cosa si sente (dalla ruota degli aromi, o scrivendolo) e dove sta
@@ -13,6 +13,8 @@ import { ASSI, MASSIMO, categoriaDi, categorieDi, coloreDi, racconto, type Parte
 // altrimenti fissa la posizione del prossimo profumo, che poi si sceglie dall'elenco.
 // Il pannello per aggiungere sta subito sotto il parallelepipedo e, scelta una famiglia, i suoi dettagli
 // compaiono in cima al pannello (cioè sotto il grafico), non in fondo a tutte le famiglie.
+// Ogni punto ha una partenza e, se cambia nel tempo, un arrivo: così non serve inserire due volte lo stesso profumo.
+// Il punto aperto ha un interruttore Partenza / Arrivo che decide cosa muovono la griglia e i cursori.
 // I punti si possono spostare su e giù nell'ordine. Ogni punto può avere un commento, scritto o dettato a voce.
 // Quando i punti sono tanti, il grafico si alleggerisce nascondendone alcuni (uno per uno, per famiglia o tutti):
 // restano nei dati e nell'elenco, sono solo non disegnati. La scelta vale finché la pagina resta aperta.
@@ -35,6 +37,7 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
   const [categoria, setCategoria] = useState<string | null>(null);
   const [libero, setLibero] = useState("");
   const [posizione, setPosizione] = useState<Posizione | null>(null);
+  const [estremo, setEstremo] = useState<"partenza" | "arrivo">("partenza");
   const [nascosti, setNascosti] = useState<string[]>([]);
   const pannelloAggiungi = useRef<HTMLDivElement>(null);
   const [microfono, setMicrofono] = useState<"fermo" | "registro" | "trascrivo">("fermo");
@@ -44,6 +47,23 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
   const attuale = punti.find((p) => p.id === selezionato) ?? null;
   const cambia = (id: string, modifiche: Partial<Punto>) =>
     suCambio(punti.map((p) => (p.id === id ? { ...p, ...modifiche } : p)));
+
+  /** Sposta la partenza o l'arrivo del punto: l'arrivo non può stare prima della partenza nel tempo. */
+  function modificaEstremo(id: string, m: Partial<Estremo>, quale: "partenza" | "arrivo" = estremo) {
+    suCambio(
+      punti.map((p) => {
+        if (p.id !== id) return p;
+        if (quale === "arrivo") {
+          const fine = { ...(p.fine ?? { persistenza: p.persistenza, ampiezza: p.ampiezza, intensita: p.intensita }), ...m };
+          fine.persistenza = Math.max(fine.persistenza, p.persistenza);
+          return { ...p, fine };
+        }
+        const nuovo = { ...p, ...m };
+        if (nuovo.fine && nuovo.fine.persistenza < nuovo.persistenza) nuovo.fine = { ...nuovo.fine, persistenza: nuovo.persistenza };
+        return nuovo;
+      }),
+    );
+  }
 
   // Nascondere: solo ciò che è ancora tra i punti (se uno viene tolto, il suo id non conta più).
   const nascostiOra = nascosti.filter((id) => punti.some((p) => p.id === id));
@@ -82,21 +102,23 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
         persistenza: base.persistenza,
       },
     ]);
-    // Con la posizione già scelta il punto è a posto: resta chiuso, così il tocco successivo sulla griglia
-    // prepara il profumo seguente invece di spostare questo.
-    setSelezionato(posizione ? null : id);
+    // Il punto resta aperto. Se la posizione era già scelta quella è la partenza e ora tocca all'arrivo;
+    // altrimenti si comincia dalla partenza.
+    setSelezionato(id);
+    setEstremo(posizione ? "arrivo" : "partenza");
     setPosizione(null);
     setLibero("");
   }
 
   function seleziona(id: string | null) {
     setSelezionato(id);
+    if (id !== selezionato) setEstremo("partenza");
     setPosizione(null);
   }
 
   function toccoGriglia(p: Posizione) {
     if (attuale) {
-      cambia(attuale.id, p);
+      modificaEstremo(attuale.id, p);
       return;
     }
     setPosizione(p);
@@ -171,10 +193,12 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <VistaSpazio punti={punti} selezionato={selezionato} suSelezione={seleziona} posizione={posizione} suPosizione={toccoGriglia} nascosti={nascostiOra} />
+      <VistaSpazio punti={punti} selezionato={selezionato} suSelezione={seleziona} posizione={posizione} suPosizione={toccoGriglia} nascosti={nascostiOra} estremo={estremo} />
       <p className="text-sm text-tenue">
         {attuale
-          ? t("Tocca un pallino della griglia per spostare lì «{nome}».", { nome: t(attuale.nome) })
+          ? estremo === "arrivo"
+            ? t("Tocca un pallino della griglia per mettere l'arrivo di «{nome}».", { nome: t(attuale.nome) })
+            : t("Tocca un pallino della griglia per spostare lì «{nome}».", { nome: t(attuale.nome) })
           : parte === "olfatto"
             ? t("Tocca un pallino della griglia per scegliere dove mettere il prossimo profumo.")
             : t("Tocca un pallino della griglia per scegliere dove mettere il prossimo gusto o aroma.")}
@@ -309,6 +333,7 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
                   </span>
                   <span className="ml-auto shrink-0 text-xs tabular-nums text-tenue">
                     {p.persistenza} · {p.ampiezza} · {p.intensita}
+                    {p.fine && ` → ${p.fine.persistenza} · ${p.fine.ampiezza} · ${p.fine.intensita}`}
                   </span>
                 </button>
                 <button
@@ -337,22 +362,43 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
       {attuale && (
         <div className="flex flex-col gap-3 rounded-xl border border-bordo bg-carta p-3">
           <p className="font-medium">{t(attuale.nome)}</p>
-          {ASSI.map((asse) => (
-            <label key={asse.id} className="flex flex-col gap-1 text-sm">
-              <span className="flex justify-between">
-                <span>{t(asse.nome)}</span>
-                <span className="tabular-nums">{attuale[asse.id]}</span>
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={MASSIMO}
-                step={0.5}
-                value={attuale[asse.id]}
-                onChange={(e) => cambia(attuale.id, { [asse.id]: Number(e.target.value) })}
-              />
-            </label>
-          ))}
+          <div className="flex gap-1 rounded-xl border border-bordo bg-sfondo p-1" role="group" aria-label={t("Estremo del punto")}>
+            {(["partenza", "arrivo"] as const).map((quale) => (
+              <button
+                key={quale}
+                type="button"
+                onClick={() => setEstremo(quale)}
+                aria-pressed={estremo === quale}
+                className={`min-h-10 flex-1 rounded-lg px-3 text-sm ${estremo === quale ? "bg-vino font-medium text-white" : "bg-carta text-inchiostro"}`}
+              >
+                {quale === "partenza" ? t("Partenza") : attuale.fine ? t("Arrivo") : t("Arrivo (non definito)")}
+              </button>
+            ))}
+          </div>
+          {estremo === "arrivo" && !attuale.fine && (
+            <p className="text-sm text-tenue">{t("Tocca la griglia o muovi un cursore per dire dove arriva. Finché non lo fai il punto resta fermo.")}</p>
+          )}
+          <p className="text-xs text-tenue">{t("L'ampiezza è lo spazio occupato: 1 = un posto, 3 = tre posti dal bordo, 5 = tutta la larghezza.")}</p>
+          {ASSI.map((asse) => {
+            const valori = estremo === "arrivo" ? (attuale.fine ?? attuale) : attuale;
+            const minimo = asse.id === "ampiezza" ? AMPIEZZA_MINIMA : asse.id === "persistenza" && estremo === "arrivo" ? attuale.persistenza : 0;
+            return (
+              <label key={asse.id} className="flex flex-col gap-1 text-sm">
+                <span className="flex justify-between">
+                  <span>{t(asse.nome)}</span>
+                  <span className="tabular-nums">{valori[asse.id]}</span>
+                </span>
+                <input
+                  type="range"
+                  min={minimo}
+                  max={MASSIMO}
+                  step={0.5}
+                  value={Math.max(minimo, valori[asse.id])}
+                  onChange={(e) => modificaEstremo(attuale.id, { [asse.id]: Number(e.target.value) })}
+                />
+              </label>
+            );
+          })}
           <label className="flex flex-col gap-1 text-sm">
             <span>{t("Commento (come una nota a margine)")}</span>
             <textarea
@@ -366,6 +412,18 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
             <button type="button" className="rounded-lg border border-bordo bg-sfondo px-3 py-2 text-sm" onClick={detta} disabled={microfono === "trascrivo"}>
               {microfono === "registro" ? t("Ferma e trascrivi") : microfono === "trascrivo" ? t("Trascrivo…") : t("Detta il commento")}
             </button>
+            {attuale.fine && (
+              <button
+                type="button"
+                className="text-sm text-vino underline"
+                onClick={() => {
+                  suCambio(punti.map((p) => (p.id === attuale.id ? { ...p, fine: undefined } : p)));
+                  setEstremo("partenza");
+                }}
+              >
+                {t("Togli l'arrivo")}
+              </button>
+            )}
             <button
               type="button"
               className="text-sm text-vino underline"
@@ -375,6 +433,9 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
               }}
             >
               {t("Togli il punto")}
+            </button>
+            <button type="button" className="rounded-lg border border-bordo bg-sfondo px-3 py-2 text-sm" onClick={() => seleziona(null)}>
+              {t("Fatto")}
             </button>
           </div>
           {avviso && (

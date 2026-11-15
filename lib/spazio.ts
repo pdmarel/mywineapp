@@ -7,9 +7,12 @@ import { daTradurre, inItaliano, minuscolo, type Traduttore } from "./i18n/lingu
 //   lunghezza = PERSISTENZA   (quanto dura)
 //   larghezza = AMPIEZZA      (quanto è largo, avvolgente)
 //   altezza   = INTENSITÀ     (quanto è forte)
-// Ogni profumo (al naso) o gusto/aroma (in bocca) è un PUNTO nello spazio. I punti sono in ordine di
-// percezione e una linea li collega: è il percorso del vino nel tempo. Ogni punto può avere un COMMENTO,
-// come la nota di una cella di Excel, scritto o dettato a voce.
+// Ogni profumo (al naso) o gusto/aroma (in bocca) ha una PARTENZA nello spazio e, se cambia nel tempo,
+// anche un ARRIVO: una linea li collega ed è l'andamento di quel profumo, senza doverlo inserire due volte.
+// L'AMPIEZZA non è una coordinata ma uno spazio occupato: ampiezza 1 = un solo posto, ampiezza 3 = tre posti
+// (da 1 a 3 sull'asse), ampiezza 5 = tutta la larghezza. Con partenza e arrivo di ampiezza diversa si disegna
+// un'area (ampiezza 1 → 5 dà un triangolo). I punti sono in ordine di percezione. Ogni punto può avere un
+// COMMENTO, come la nota di una cella di Excel, scritto o dettato a voce.
 // Dai punti si ricava un racconto scritto (funzione "racconto"): niente intelligenza artificiale,
 // solo le parole che corrispondono ai numeri, così il testo dice esattamente ciò che è stato segnato.
 //
@@ -17,17 +20,27 @@ import { daTradurre, inItaliano, minuscolo, type Traduttore } from "./i18n/lingu
 
 export type Parte = "olfatto" | "bocca";
 
+/** Un estremo del percorso di un punto: dove sta (persistenza, intensità) e quanto spazio occupa (ampiezza). */
+export type Estremo = { persistenza: number; ampiezza: number; intensita: number };
+
 export type Punto = {
   id: string;
   /** Il profumo, gusto o aroma: "Ciliegia", "Sapido", o testo libero. */
   nome: string;
   /** Categoria della ruota degli aromi (o "gusto" / "tattile"), per il colore. */
   categoria: string;
+  // La partenza.
   intensita: number;
   ampiezza: number;
   persistenza: number;
+  /** L'arrivo: assente se il profumo non cambia nel tempo (vale come la partenza). Mai prima della partenza. */
+  fine?: Estremo;
   commento?: string;
 };
+
+/** L'arrivo di un punto (la partenza stessa se non ne ha uno). */
+export const arrivoDi = (p: Punto): Estremo => p.fine ?? p;
+export const haArrivo = (p: Punto): boolean => !!p.fine;
 
 export type Spazio = { olfatto: Punto[]; bocca: Punto[] };
 
@@ -92,6 +105,12 @@ function limita(n: unknown): number {
   return Number.isFinite(v) ? Math.min(MASSIMO, Math.max(0, Math.round(v * 2) / 2)) : 0;
 }
 
+/** L'ampiezza va da 1 (un solo posto) a 5 (tutta la larghezza). */
+export const AMPIEZZA_MINIMA = 1;
+function limitaAmpiezza(n: unknown): number {
+  return Math.max(AMPIEZZA_MINIMA, limita(n));
+}
+
 /** Ripulisce i punti arrivati dal modulo: nomi presenti, valori nei limiti, niente doppioni di id. */
 export function validaSpazio(grezzo: unknown): Spazio {
   const lista = (v: unknown, parte: Parte): Punto[] => {
@@ -104,15 +123,21 @@ export function validaSpazio(grezzo: unknown): Spazio {
       if (!nome || !id || visti.has(id)) continue;
       visti.add(id);
       const commento = typeof p.commento === "string" ? p.commento.trim().slice(0, 600) : "";
-      out.push({
+      const punto = {
         id,
         nome,
         categoria: typeof p.categoria === "string" && p.categoria ? p.categoria : categoriaDi(nome, parte),
         intensita: limita(p.intensita),
-        ampiezza: limita(p.ampiezza),
+        ampiezza: limitaAmpiezza(p.ampiezza),
         persistenza: limita(p.persistenza),
-        ...(commento ? { commento } : {}),
-      });
+      };
+      // L'arrivo c'è solo se differisce dalla partenza, e non può stare prima nel tempo.
+      const f = p.fine && typeof p.fine === "object" ? (p.fine as Record<string, unknown>) : null;
+      const fine: Estremo | null = f
+        ? { persistenza: Math.max(punto.persistenza, limita(f.persistenza)), ampiezza: limitaAmpiezza(f.ampiezza), intensita: limita(f.intensita) }
+        : null;
+      const diverso = fine && (fine.persistenza !== punto.persistenza || fine.ampiezza !== punto.ampiezza || fine.intensita !== punto.intensita);
+      out.push({ ...punto, ...(diverso ? { fine } : {}), ...(commento ? { commento } : {}) } as Punto);
       if (out.length >= 40) break;
     }
     return out;
@@ -136,7 +161,12 @@ function nomeDi(p: Punto, t: Traduttore): string {
   return minuscolo(t(p.nome), t.lingua);
 }
 
+function gradi(e: Estremo, t: Traduttore): string {
+  return [t(INTENSITA[grado(e.intensita)]), t(AMPIEZZA[grado(e.ampiezza)]), t(PERSISTENZA[grado(e.persistenza)])].join(", ");
+}
+
 function descrivi(p: Punto, t: Traduttore): string {
+  if (p.fine) return t("{nome} (all'inizio {inizio}; alla fine {fine})", { nome: nomeDi(p, t), inizio: gradi(p, t), fine: gradi(p.fine, t) });
   return t("{nome} ({intensita}, {ampiezza}, {persistenza})", {
     nome: nomeDi(p, t),
     intensita: t(INTENSITA[grado(p.intensita)]),
@@ -145,10 +175,11 @@ function descrivi(p: Punto, t: Traduttore): string {
   });
 }
 
-/** Come cambia da un punto al successivo, sui due assi usati per il racconto. */
+/** Come cambia dall'arrivo di un punto alla partenza del successivo, sui due assi usati per il racconto. */
 function passaggio(prima: Punto, dopo: Punto, t: Traduttore): string {
-  const di = dopo.intensita - prima.intensita;
-  const da = dopo.ampiezza - prima.ampiezza;
+  const fine = arrivoDi(prima);
+  const di = dopo.intensita - fine.intensita;
+  const da = dopo.ampiezza - fine.ampiezza;
   const sale = di >= 1 ? t("crescendo d'intensità") : di <= -1 ? t("calando d'intensità") : "";
   const allarga = da >= 1 ? t("allargandosi") : da <= -1 ? t("stringendosi") : "";
   if (sale && allarga) return t("{primo} e {secondo}", { primo: sale, secondo: allarga });
@@ -175,8 +206,10 @@ export function racconto(punti: Punto[], parte: Parte, t: Traduttore = inItalian
   });
   // Una riga di sintesi: il punto più intenso, il più ampio, il più lungo.
   if (punti.length > 1) {
+    // Per ogni punto conta il valore più alto tra partenza e arrivo.
+    const picco = (p: Punto, chiave: "intensita" | "ampiezza" | "persistenza") => Math.max(p[chiave], arrivoDi(p)[chiave]);
     const massimo = (chiave: "intensita" | "ampiezza" | "persistenza") =>
-      punti.reduce((a, b) => (b[chiave] > a[chiave] ? b : a));
+      punti.reduce((a, b) => (picco(b, chiave) > picco(a, chiave) ? b : a));
     const forte = massimo("intensita");
     const largo = massimo("ampiezza");
     const lungo = massimo("persistenza");

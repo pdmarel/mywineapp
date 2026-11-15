@@ -18,9 +18,14 @@ type Props = {
   suPosizione?: (p: Posizione) => void;
   /** Punti nascosti temporaneamente nel parallelepipedo (la tabella li mostra comunque). */
   nascosti?: string[];
+  /** Estremo del punto aperto che si sta sistemando (le guide del parallelepipedo seguono quello). */
+  estremo?: "partenza" | "arrivo";
 };
 
-function Casella({ valore, colore }: { valore: number; colore: string }) {
+function Casella({ valore, arrivo, colore }: { valore: number; arrivo?: number; colore: string }) {
+  const cambia = arrivo !== undefined && arrivo !== valore;
+  const valore0 = valore;
+  valore = cambia ? Math.max(valore, arrivo) : valore; // il colore segue il valore più alto
   return (
     <td className="p-0 text-center">
       <span
@@ -31,7 +36,7 @@ function Casella({ valore, colore }: { valore: number; colore: string }) {
           color: valore / MASSIMO > 0.5 ? "#fff" : "#2b2320",
         }}
       >
-        {valore}
+        {cambia ? `${valore0} → ${arrivo}` : valore}
       </span>
     </td>
   );
@@ -72,9 +77,9 @@ export function TabellaSpazio({ punti, selezionato, suSelezione }: Props) {
                   </span>
                   {p.commento && <span className="mt-0.5 block text-tenue">❝ {p.commento}</span>}
                 </td>
-                <Casella valore={p.persistenza} colore={colore} />
-                <Casella valore={p.ampiezza} colore={colore} />
-                <Casella valore={p.intensita} colore={colore} />
+                <Casella valore={p.persistenza} arrivo={p.fine?.persistenza} colore={colore} />
+                <Casella valore={p.ampiezza} arrivo={p.fine?.ampiezza} colore={colore} />
+                <Casella valore={p.intensita} arrivo={p.fine?.intensita} colore={colore} />
               </tr>
             );
           })}

@@ -127,8 +127,13 @@ export default async function PaginaDegustazione({
                     <span className="font-medium">
                       {i + 1}. {t(p.nome)}
                     </span>
-                    <span className="ml-auto text-xs tabular-nums text-tenue">
+                    <span className="ml-auto text-right text-xs tabular-nums text-tenue">
                       {t("persistenza {persistenza} · ampiezza {ampiezza} · intensità {intensita}", { persistenza: p.persistenza, ampiezza: p.ampiezza, intensita: p.intensita })}
+                      {p.fine && (
+                        <>
+                          <br />→ {t("persistenza {persistenza} · ampiezza {ampiezza} · intensità {intensita}", { persistenza: p.fine.persistenza, ampiezza: p.fine.ampiezza, intensita: p.fine.intensita })}
+                        </>
+                      )}
                     </span>
                   </span>
                   {p.commento && <span className="mt-1 block text-tenue">❝ {p.commento}</span>}
