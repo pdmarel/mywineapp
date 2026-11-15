@@ -39,3 +39,11 @@ scripts/import-esegui.mjs
 scripts/import-prepara.py
 scripts/etichette-scaffali.mjs
 scripts/spostamenti-docx.py
+
+# il modello delle variabili (senza valori) va nel repository
+!.env.example
+
+# documenti generati (etichette, elenchi): mai nel repository
+*.pdf
+*.docx
+*.png
