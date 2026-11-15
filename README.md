@@ -55,4 +55,4 @@ Le chiavi non vanno mai nel repository: `.env.local` è ignorato da git.
 
 ## Licenza
 
-Da definire.
+Il codice è visibile ma **l'uso richiede il permesso dell'autore**: leggerlo e studiarlo è libero, ogni altro uso va chiesto prima. Testo completo, con le istruzioni per la richiesta, in [LICENSE](LICENSE).
