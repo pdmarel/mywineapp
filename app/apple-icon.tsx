@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { SIGLA } from "@/lib/sigla";
 
 // Icona per la schermata Home di iPhone (serve PNG: la genera Next da questo disegno).
 export const size = { width: 180, height: 180 };
@@ -22,20 +23,22 @@ export default function AppleIcon() {
           <rect x="230" y="284" width="20" height="104" fill="#faf7f2" />
           <rect x="172" y="384" width="136" height="20" rx="10" fill="#faf7f2" />
         </svg>
-        <div
-          style={{
-            position: "absolute",
-            top: 24,
-            right: 16,
-            display: "flex",
-            color: "#faf7f2",
-            fontSize: 26,
-            fontWeight: 700,
-            letterSpacing: 1,
-          }}
-        >
-          EM
-        </div>
+        {SIGLA && (
+          <div
+            style={{
+              position: "absolute",
+              top: 24,
+              right: 16,
+              display: "flex",
+              color: "#faf7f2",
+              fontSize: 26,
+              fontWeight: 700,
+              letterSpacing: 1,
+            }}
+          >
+            {SIGLA}
+          </div>
+        )}
       </div>
     ),
     size,

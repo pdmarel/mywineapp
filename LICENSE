@@ -1,74 +1,21 @@
-MyWineApp — Source-available licence, permission required
-Licenza con richiesta di utilizzo
+MIT License
 
-Copyright (c) 2026 pdmarel. All rights reserved. / Tutti i diritti riservati.
+Copyright (c) 2026 pdmarel
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-ENGLISH (this text prevails in case of doubt)
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. What you may do without asking
-   You may read this source code and clone it to your own computer for personal study,
-   evaluation and learning. You may also view and fork the repository on GitHub as
-   allowed by GitHub's Terms of Service.
-
-2. What requires permission
-   Any other use requires the prior written permission of the copyright holder. This
-   includes, without limitation: running or hosting the software for yourself or for
-   others; copying, modifying, merging, publishing, distributing, sublicensing or
-   selling the software or any part of it; using it, or parts of it, in another
-   project, product or service, whether commercial or not; and using it to build or
-   train other software or models.
-
-3. How to ask
-   Open an Issue in this repository titled "Usage request / Richiesta di utilizzo", or
-   contact the holder through the GitHub profile "pdmarel". Please say who you are, what
-   you want to use, for what purpose and for how long. Permission is valid only when it
-   is given in writing by the copyright holder; it may be limited in scope or time, may
-   carry conditions (such as attribution), and may be withdrawn.
-
-4. Third-party components
-   The software depends on third-party libraries (for example Next.js, React, Supabase
-   client libraries, Plotly). They remain under their own licences, which this licence
-   does not change.
-
-5. No warranty
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-   PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-
-ITALIANO (traduzione di cortesia)
-
-1. Cosa puoi fare senza chiedere
-   Puoi leggere questo codice sorgente e clonarlo sul tuo computer per studio personale,
-   valutazione e apprendimento. Puoi inoltre vedere e fare il fork del repository su
-   GitHub nei limiti consentiti dai Termini di servizio di GitHub.
-
-2. Cosa richiede un permesso
-   Ogni altro uso richiede il previo permesso scritto del titolare dei diritti. Rientrano
-   tra questi, a titolo di esempio: eseguire o ospitare il software per sé o per altri;
-   copiare, modificare, unire, pubblicare, distribuire, concedere in sublicenza o
-   vendere il software o parti di esso; usarlo, anche in parte, in un altro progetto,
-   prodotto o servizio, commerciale o no; usarlo per sviluppare o addestrare altro
-   software o modelli.
-
-3. Come chiedere
-   Apri una Issue in questo repository con titolo «Richiesta di utilizzo», oppure scrivi
-   al titolare dal profilo GitHub «pdmarel». Indica chi sei, cosa vuoi usare, per quale
-   scopo e per quanto tempo. Il permesso vale solo se è dato per iscritto dal titolare;
-   può essere limitato nell'ambito o nel tempo, può prevedere condizioni (per esempio
-   l'indicazione dell'autore) e può essere revocato.
-
-4. Componenti di terzi
-   Il software dipende da librerie di terzi (per esempio Next.js, React, le librerie
-   client di Supabase, Plotly). Restano soggette alle loro licenze, che questa licenza
-   non modifica.
-
-5. Nessuna garanzia
-   Il software è fornito «così com'è», senza garanzie di alcun tipo, esplicite o
-   implicite, comprese quelle di commerciabilità, idoneità a uno scopo particolare e
-   non violazione di diritti altrui. L'autore non risponde in alcun caso di richieste,
-   danni o altre responsabilità derivanti dal software o dal suo uso.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "MyWineApp",
     description: t("La mia cantina e le mie degustazioni"),
+    icons: { icon: "/icon.svg" },
     appleWebApp: { capable: true, title: "MyWineApp", statusBarStyle: "default" },
   };
 }

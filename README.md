@@ -46,6 +46,8 @@ I provider di intelligenza artificiale e di ricerca sono sostituibili (vedi `.en
 
 Le chiavi non vanno mai nel repository: `.env.local` è ignorato da git.
 
+**Personalizzare il marchio.** `NEXT_PUBLIC_SIGLA` (facoltativa, massimo 3 lettere) aggiunge una sigla in apice accanto al nome, come un ™, nel logo e nelle icone dell'app. Vuota = nessuna sigla.
+
 ## Note per chi sviluppa
 
 - Next.js 16: alcune convenzioni sono cambiate (`proxy.ts` al posto di `middleware.ts`, tipi `PageProps`). La documentazione della versione installata è in `node_modules/next/dist/docs/`.
@@ -55,4 +57,4 @@ Le chiavi non vanno mai nel repository: `.env.local` è ignorato da git.
 
 ## Licenza
 
-Il codice è visibile ma **l'uso richiede il permesso dell'autore**: leggerlo e studiarlo è libero, ogni altro uso va chiesto prima. Testo completo, con le istruzioni per la richiesta, in [LICENSE](LICENSE).
+[MIT](LICENSE).
