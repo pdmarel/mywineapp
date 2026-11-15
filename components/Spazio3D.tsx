@@ -55,10 +55,13 @@ export function Spazio3D({
   suSelezione,
   posizione,
   suPosizione,
+  nascosti,
   altezza = 340,
 }: {
   punti: Punto[];
   selezionato?: string | null;
+  /** Id dei punti nascosti temporaneamente: restano nei dati ma non sono disegnati (il punto aperto si vede sempre). */
+  nascosti?: string[];
   suSelezione?: (id: string) => void;
   /** Posizione scelta toccando la griglia, in attesa che si scelga il profumo. */
   posizione?: Posizione | null;
@@ -81,9 +84,12 @@ export function Spazio3D({
     return {
       proietta,
       nodi: nodi.map((x) => ({ ...x, t: lontananza(x.s.z) })).sort((a, b) => b.s.z - a.s.z),
-      punti: punti.map((p, i) => ({ p, i, s: di(p), piede: proietta(p.persistenza, p.ampiezza, 0) })),
+      // La numerazione resta quella dell'elenco anche se alcuni punti sono nascosti.
+      punti: punti
+        .map((p, i) => ({ p, i, s: di(p), piede: proietta(p.persistenza, p.ampiezza, 0) }))
+        .filter(({ p }) => p.id === selezionato || !nascosti?.includes(p.id)),
     };
-  }, [camera, larghezza, altezza, punti, suPosizione]);
+  }, [camera, larghezza, altezza, punti, suPosizione, nascosti, selezionato]);
 
   function tocco(e: React.MouseEvent<HTMLDivElement>) {
     if (!eUnTocco()) return;

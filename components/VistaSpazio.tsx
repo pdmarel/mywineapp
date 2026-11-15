@@ -16,6 +16,8 @@ type Props = {
   /** Solo per il parallelepipedo, quando si compila: posizione scelta sulla griglia e come sceglierla. */
   posizione?: Posizione | null;
   suPosizione?: (p: Posizione) => void;
+  /** Punti nascosti temporaneamente nel parallelepipedo (la tabella li mostra comunque). */
+  nascosti?: string[];
 };
 
 function Casella({ valore, colore }: { valore: number; colore: string }) {

@@ -724,5 +724,13 @@
  "Tutte le pareti hanno già {n} scaffali.": "All walls already have {n} racks.",
  "Un piano in meno": "Remove a shelf",
  "Un piano in più": "Add a shelf",
- "Togli il piano {n}": "Remove shelf {n}"
+ "Togli il piano {n}": "Remove shelf {n}",
+ "Cosa vedi nel grafico": "What you see in the chart",
+ "Mostra tutti": "Show all",
+ "Nascondi tutti": "Hide all",
+ "Mostra {nome} nel grafico": "Show {nome} in the chart",
+ "Nascondi {nome} dal grafico": "Hide {nome} from the chart",
+ "Nascosto nel grafico: tocca per mostrarlo": "Hidden in the chart: tap to show it",
+ "Visibile nel grafico: tocca per nasconderlo": "Visible in the chart: tap to hide it",
+ "Altro": "Other"
 }

@@ -724,5 +724,13 @@
  "Tutte le pareti hanno già {n} scaffali.": "Tous les murs ont déjà {n} casiers.",
  "Un piano in meno": "Un niveau de moins",
  "Un piano in più": "Un niveau de plus",
- "Togli il piano {n}": "Retirer le niveau {n}"
+ "Togli il piano {n}": "Retirer le niveau {n}",
+ "Cosa vedi nel grafico": "Ce que l'on voit dans le graphique",
+ "Mostra tutti": "Tout afficher",
+ "Nascondi tutti": "Tout masquer",
+ "Mostra {nome} nel grafico": "Afficher {nome} dans le graphique",
+ "Nascondi {nome} dal grafico": "Masquer {nome} du graphique",
+ "Nascosto nel grafico: tocca per mostrarlo": "Masqué dans le graphique : touchez pour l'afficher",
+ "Visibile nel grafico: tocca per nasconderlo": "Visible dans le graphique : touchez pour le masquer",
+ "Altro": "Autre"
 }

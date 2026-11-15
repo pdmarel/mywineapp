@@ -11,7 +11,11 @@ import { ASSI, MASSIMO, categoriaDi, categorieDi, coloreDi, racconto, type Parte
 // nello spazio con tre cursori: persistenza, ampiezza, intensità. I punti sono in ordine di percezione
 // Nel parallelepipedo si può anche toccare un pallino della griglia: se un punto è aperto lo sposta lì,
 // altrimenti fissa la posizione del prossimo profumo, che poi si sceglie dall'elenco.
+// Il pannello per aggiungere sta subito sotto il parallelepipedo e, scelta una famiglia, i suoi dettagli
+// compaiono in cima al pannello (cioè sotto il grafico), non in fondo a tutte le famiglie.
 // I punti si possono spostare su e giù nell'ordine. Ogni punto può avere un commento, scritto o dettato a voce.
+// Quando i punti sono tanti, il grafico si alleggerisce nascondendone alcuni (uno per uno, per famiglia o tutti):
+// restano nei dati e nell'elenco, sono solo non disegnati. La scelta vale finché la pagina resta aperta.
 // Sotto, il racconto scritto si aggiorna da solo.
 
 type Props = {
@@ -31,6 +35,7 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
   const [categoria, setCategoria] = useState<string | null>(null);
   const [libero, setLibero] = useState("");
   const [posizione, setPosizione] = useState<Posizione | null>(null);
+  const [nascosti, setNascosti] = useState<string[]>([]);
   const pannelloAggiungi = useRef<HTMLDivElement>(null);
   const [microfono, setMicrofono] = useState<"fermo" | "registro" | "trascrivo">("fermo");
   const [avviso, setAvviso] = useState("");
@@ -39,6 +44,25 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
   const attuale = punti.find((p) => p.id === selezionato) ?? null;
   const cambia = (id: string, modifiche: Partial<Punto>) =>
     suCambio(punti.map((p) => (p.id === id ? { ...p, ...modifiche } : p)));
+
+  // Nascondere: solo ciò che è ancora tra i punti (se uno viene tolto, il suo id non conta più).
+  const nascostiOra = nascosti.filter((id) => punti.some((p) => p.id === id));
+  const eNascosto = (id: string) => nascostiOra.includes(id);
+  const commutaPunto = (id: string) => setNascosti(eNascosto(id) ? nascostiOra.filter((x) => x !== id) : [...nascostiOra, id]);
+  const famigliePresenti = categorie
+    .map((c) => ({ ...c, ids: punti.filter((p) => p.categoria === c.id).map((p) => p.id) }))
+    .concat(
+      // Punti con una famiglia fuori elenco (ad esempio scritti a mano): un gruppo a parte.
+      (() => {
+        const ids = punti.filter((p) => !categorie.some((c) => c.id === p.categoria)).map((p) => p.id);
+        return ids.length ? [{ id: "_altro", nome: "Altro", colore: "#7a6f69", voci: [], ids }] : [];
+      })(),
+    )
+    .filter((c) => c.ids.length > 0);
+  const commutaFamiglia = (ids: string[]) => {
+    const tuttiNascosti = ids.every(eNascosto);
+    setNascosti(tuttiNascosti ? nascostiOra.filter((x) => !ids.includes(x)) : [...new Set([...nascostiOra, ...ids])]);
+  };
 
   function aggiungi(nome: string, cat?: string) {
     const pulito = nome.trim();
@@ -143,10 +167,11 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
   }
 
   const testo = racconto(punti, parte, t);
+  const famigliaScelta = categoria ? categorie.find((c) => c.id === categoria) : undefined;
 
   return (
     <div className="flex flex-col gap-3">
-      <VistaSpazio punti={punti} selezionato={selezionato} suSelezione={seleziona} posizione={posizione} suPosizione={toccoGriglia} />
+      <VistaSpazio punti={punti} selezionato={selezionato} suSelezione={seleziona} posizione={posizione} suPosizione={toccoGriglia} nascosti={nascostiOra} />
       <p className="text-sm text-tenue">
         {attuale
           ? t("Tocca un pallino della griglia per spostare lì «{nome}».", { nome: t(attuale.nome) })
@@ -155,38 +180,156 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
             : t("Tocca un pallino della griglia per scegliere dove mettere il prossimo gusto o aroma.")}
       </p>
 
-      {punti.length > 0 && (
-        <ol className="flex flex-col gap-1">
-          {punti.map((p, i) => (
-            <li key={p.id} className={`flex items-center gap-2 rounded-xl px-2 ${p.id === selezionato ? "bg-ambra/20" : "bg-sfondo"}`}>
+      <div ref={pannelloAggiungi} className="flex flex-col gap-2 rounded-xl bg-sfondo p-3">
+        <p className="text-sm font-medium">{parte === "olfatto" ? t("Aggiungi un profumo") : t("Aggiungi un gusto o aroma")}</p>
+        {posizione && (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-vino/10 px-3 py-2 text-sm" role="status">
+            <span>
+              {parte === "olfatto"
+                ? t("Posizione scelta: persistenza {persistenza} · ampiezza {ampiezza} · intensità {intensita}. Ora scegli il profumo.", posizione)
+                : t("Posizione scelta: persistenza {persistenza} · ampiezza {ampiezza} · intensità {intensita}. Ora scegli il gusto o aroma.", posizione)}
+            </span>
+            <button type="button" className="text-vino underline" onClick={() => setPosizione(null)}>
+              {t("Annulla")}
+            </button>
+          </p>
+        )}
+        {famigliaScelta && (
+          // I dettagli della famiglia scelta stanno in cima al pannello, subito sotto il grafico.
+          <div className="flex flex-wrap gap-2 rounded-lg border border-bordo bg-carta/60 p-2">
+            {/* Si può restare sulla famiglia ("Floreali") senza scendere al profumo specifico. */}
+            <button
+              type="button"
+              onClick={() => aggiungi(famigliaScelta.nome, famigliaScelta.id)}
+              className="rounded-lg border border-inchiostro bg-carta px-3 py-2 text-sm font-medium"
+            >
+              {t("{categoria} (in generale)", { categoria: t(famigliaScelta.nome) })}
+            </button>
+            {famigliaScelta.voci.map((v) => (
+              <button key={v} type="button" onClick={() => aggiungi(v, famigliaScelta.id)} className="rounded-lg bg-carta px-3 py-2 text-sm shadow-sm">
+                {t(v)}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {categorie.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setCategoria(categoria === c.id ? null : c.id)}
+              aria-pressed={categoria === c.id}
+              className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs ${categoria === c.id ? "border-inchiostro bg-carta font-medium" : "border-bordo bg-carta"}`}
+            >
+              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: c.colore }} />
+              {t(c.nome)}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={libero}
+            onChange={(e) => setLibero(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault(); // non deve salvare tutta la degustazione
+                aggiungi(libero);
+              }
+            }}
+            className="campo"
+            placeholder={t("oppure scrivilo tu")}
+            maxLength={60}
+            aria-label={parte === "olfatto" ? t("Altro profumo") : t("Altro gusto o aroma")}
+          />
+          <button type="button" className="pulsante" onClick={() => aggiungi(libero)} disabled={!libero.trim()}>
+            {t("Aggiungi")}
+          </button>
+        </div>
+      </div>
+
+      {punti.length > 1 && (
+        <div className="flex flex-col gap-2 rounded-xl bg-sfondo p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-medium">{t("Cosa vedi nel grafico")}</p>
+            <div className="flex gap-3 text-sm">
+              <button type="button" className="text-vino underline disabled:opacity-40 disabled:no-underline" disabled={nascostiOra.length === 0} onClick={() => setNascosti([])}>
+                {t("Mostra tutti")}
+              </button>
               <button
                 type="button"
-                onClick={() => seleziona(p.id === selezionato ? null : p.id)}
-                aria-expanded={p.id === selezionato}
-                className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left text-sm"
+                className="text-vino underline disabled:opacity-40 disabled:no-underline"
+                disabled={nascostiOra.length === punti.length}
+                onClick={() => setNascosti(punti.map((p) => p.id))}
               >
-                <span className="inline-block h-3 w-3 shrink-0 rounded-full" style={{ background: coloreDi(p.categoria) }} />
-                <span className="truncate">
-                  {i + 1}. {t(p.nome)}
-                  {p.commento && (
-                    <span className="text-vino" title={p.commento}>
-                      {" "}
-                      ❝
-                    </span>
-                  )}
-                </span>
-                <span className="ml-auto shrink-0 text-xs tabular-nums text-tenue">
-                  {p.persistenza} · {p.ampiezza} · {p.intensita}
-                </span>
+                {t("Nascondi tutti")}
               </button>
-              <button type="button" className="px-1 text-tenue disabled:opacity-30" disabled={i === 0} onClick={() => sposta(p.id, -1)} aria-label={t("Sposta {nome} prima", { nome: t(p.nome) })}>
-                ↑
-              </button>
-              <button type="button" className="px-1 text-tenue disabled:opacity-30" disabled={i === punti.length - 1} onClick={() => sposta(p.id, 1)} aria-label={t("Sposta {nome} dopo", { nome: t(p.nome) })}>
-                ↓
-              </button>
-            </li>
-          ))}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {famigliePresenti.map((c) => {
+              const visibili = c.ids.filter((id) => !eNascosto(id)).length;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => commutaFamiglia(c.ids)}
+                  aria-pressed={visibili > 0}
+                  className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs ${visibili > 0 ? "border-inchiostro bg-carta font-medium" : "border-bordo bg-carta text-tenue line-through"}`}
+                >
+                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: c.colore, opacity: visibili > 0 ? 1 : 0.35 }} />
+                  {c.id === "_altro" ? t("Altro") : t(c.nome)} · {visibili}/{c.ids.length}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {punti.length > 0 && (
+        <ol className="flex flex-col gap-1">
+          {punti.map((p, i) => {
+            const nascosto = eNascosto(p.id);
+            return (
+              <li key={p.id} className={`flex items-center gap-2 rounded-xl px-2 ${p.id === selezionato ? "bg-ambra/20" : "bg-sfondo"}`}>
+                <button
+                  type="button"
+                  onClick={() => seleziona(p.id === selezionato ? null : p.id)}
+                  aria-expanded={p.id === selezionato}
+                  className={`flex min-h-11 min-w-0 flex-1 items-center gap-2 text-left text-sm ${nascosto ? "opacity-50" : ""}`}
+                >
+                  <span className="inline-block h-3 w-3 shrink-0 rounded-full" style={{ background: coloreDi(p.categoria) }} />
+                  <span className="truncate">
+                    {i + 1}. {t(p.nome)}
+                    {p.commento && (
+                      <span className="text-vino" title={p.commento}>
+                        {" "}
+                        ❝
+                      </span>
+                    )}
+                  </span>
+                  <span className="ml-auto shrink-0 text-xs tabular-nums text-tenue">
+                    {p.persistenza} · {p.ampiezza} · {p.intensita}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="min-w-8 px-1 text-tenue"
+                  aria-pressed={!nascosto}
+                  onClick={() => commutaPunto(p.id)}
+                  aria-label={nascosto ? t("Mostra {nome} nel grafico", { nome: t(p.nome) }) : t("Nascondi {nome} dal grafico", { nome: t(p.nome) })}
+                  title={nascosto ? t("Nascosto nel grafico: tocca per mostrarlo") : t("Visibile nel grafico: tocca per nasconderlo")}
+                >
+                  {nascosto ? "◌" : "●"}
+                </button>
+                <button type="button" className="px-1 text-tenue disabled:opacity-30" disabled={i === 0} onClick={() => sposta(p.id, -1)} aria-label={t("Sposta {nome} prima", { nome: t(p.nome) })}>
+                  ↑
+                </button>
+                <button type="button" className="px-1 text-tenue disabled:opacity-30" disabled={i === punti.length - 1} onClick={() => sposta(p.id, 1)} aria-label={t("Sposta {nome} dopo", { nome: t(p.nome) })}>
+                  ↓
+                </button>
+              </li>
+            );
+          })}
         </ol>
       )}
       {punti.length > 0 && <p className="text-xs text-tenue">{t("Ordine in cui li senti · numeri: persistenza · ampiezza · intensità.")}</p>}
@@ -241,74 +384,6 @@ export function EditorSpazio({ parte, punti, suCambio, vino }: Props) {
           )}
         </div>
       )}
-
-      <div ref={pannelloAggiungi} className="flex flex-col gap-2 rounded-xl bg-sfondo p-3">
-        <p className="text-sm font-medium">{parte === "olfatto" ? t("Aggiungi un profumo") : t("Aggiungi un gusto o aroma")}</p>
-        {posizione && (
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-vino/10 px-3 py-2 text-sm" role="status">
-            <span>
-              {parte === "olfatto"
-                ? t("Posizione scelta: persistenza {persistenza} · ampiezza {ampiezza} · intensità {intensita}. Ora scegli il profumo.", posizione)
-                : t("Posizione scelta: persistenza {persistenza} · ampiezza {ampiezza} · intensità {intensita}. Ora scegli il gusto o aroma.", posizione)}
-            </span>
-            <button type="button" className="text-vino underline" onClick={() => setPosizione(null)}>
-              {t("Annulla")}
-            </button>
-          </p>
-        )}
-        <div className="flex flex-wrap gap-2">
-          {categorie.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setCategoria(categoria === c.id ? null : c.id)}
-              aria-pressed={categoria === c.id}
-              className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs ${categoria === c.id ? "border-inchiostro bg-carta font-medium" : "border-bordo bg-carta"}`}
-            >
-              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: c.colore }} />
-              {t(c.nome)}
-            </button>
-          ))}
-        </div>
-        {categoria && (
-          <div className="flex flex-wrap gap-2">
-            {/* Si può restare sulla famiglia ("Floreali") senza scendere al profumo specifico. */}
-            <button
-              type="button"
-              onClick={() => aggiungi(categorie.find((c) => c.id === categoria)!.nome, categoria)}
-              className="rounded-lg border border-inchiostro bg-carta px-3 py-2 text-sm font-medium"
-            >
-              {t("{categoria} (in generale)", { categoria: t(categorie.find((c) => c.id === categoria)!.nome) })}
-            </button>
-            {categorie
-              .find((c) => c.id === categoria)!
-              .voci.map((v) => (
-                <button key={v} type="button" onClick={() => aggiungi(v, categoria)} className="rounded-lg bg-carta px-3 py-2 text-sm shadow-sm">
-                  {t(v)}
-                </button>
-              ))}
-          </div>
-        )}
-        <div className="flex gap-2">
-          <input
-            value={libero}
-            onChange={(e) => setLibero(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault(); // non deve salvare tutta la degustazione
-                aggiungi(libero);
-              }
-            }}
-            className="campo"
-            placeholder={t("oppure scrivilo tu")}
-            maxLength={60}
-            aria-label={parte === "olfatto" ? t("Altro profumo") : t("Altro gusto o aroma")}
-          />
-          <button type="button" className="pulsante" onClick={() => aggiungi(libero)} disabled={!libero.trim()}>
-            {t("Aggiungi")}
-          </button>
-        </div>
-      </div>
 
       {testo && (
         <div className="rounded-xl bg-ambra/15 p-3 text-sm">

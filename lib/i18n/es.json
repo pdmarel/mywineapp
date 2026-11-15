@@ -724,5 +724,13 @@
  "Tutte le pareti hanno già {n} scaffali.": "Todas las paredes ya tienen {n} estanterías.",
  "Un piano in meno": "Una balda menos",
  "Un piano in più": "Una balda más",
- "Togli il piano {n}": "Quitar la balda {n}"
+ "Togli il piano {n}": "Quitar la balda {n}",
+ "Cosa vedi nel grafico": "Qué ves en el gráfico",
+ "Mostra tutti": "Mostrar todos",
+ "Nascondi tutti": "Ocultar todos",
+ "Mostra {nome} nel grafico": "Mostrar {nome} en el gráfico",
+ "Nascondi {nome} dal grafico": "Ocultar {nome} del gráfico",
+ "Nascosto nel grafico: tocca per mostrarlo": "Oculto en el gráfico: toca para mostrarlo",
+ "Visibile nel grafico: tocca per nasconderlo": "Visible en el gráfico: toca para ocultarlo",
+ "Altro": "Otro"
 }

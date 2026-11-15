@@ -724,5 +724,13 @@
  "Tutte le pareti hanno già {n} scaffali.": "Alle Wände haben bereits {n} Regale.",
  "Un piano in meno": "Eine Ebene weniger",
  "Un piano in più": "Eine Ebene mehr",
- "Togli il piano {n}": "Ebene {n} entfernen"
+ "Togli il piano {n}": "Ebene {n} entfernen",
+ "Cosa vedi nel grafico": "Was im Diagramm zu sehen ist",
+ "Mostra tutti": "Alle anzeigen",
+ "Nascondi tutti": "Alle ausblenden",
+ "Mostra {nome} nel grafico": "{nome} im Diagramm anzeigen",
+ "Nascondi {nome} dal grafico": "{nome} im Diagramm ausblenden",
+ "Nascosto nel grafico: tocca per mostrarlo": "Im Diagramm ausgeblendet: tippen zum Anzeigen",
+ "Visibile nel grafico: tocca per nasconderlo": "Im Diagramm sichtbar: tippen zum Ausblenden",
+ "Altro": "Sonstiges"
 }
