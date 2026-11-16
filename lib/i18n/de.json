@@ -743,5 +743,22 @@
  "Tocca la griglia o muovi un cursore per dire dove arriva. Finché non lo fai il punto resta fermo.": "Tippe aufs Gitter oder bewege einen Regler, um das Ende festzulegen. Bis dahin bleibt der Punkt stehen.",
  "L'ampiezza è lo spazio occupato: 1 = un posto, 3 = tre posti dal bordo, 5 = tutta la larghezza.": "Die Breite ist der belegte Raum: 1 = ein Platz, 3 = drei Plätze vom Rand, 5 = die ganze Breite.",
  "Togli l'arrivo": "Ende entfernen",
- "Fatto": "Fertig"
+ "Fatto": "Fertig",
+ "vino": "Wein",
+ "quantità": "Menge",
+ "luogo": "Ort",
+ "posizione": "Position",
+ "degustazione": "Verkostung",
+ "ha aggiunto": "hat hinzugefügt",
+ "ha modificato": "hat geändert",
+ "ha tolto": "hat entfernt",
+ "Attività": "Aktivität",
+ "Chi ha aggiunto, modificato o tolto vini, quantità, luoghi, posizioni e degustazioni di questa cantina. Lo vedi solo tu, che sei il proprietario.": "Wer in diesem Keller Weine, Mengen, Orte, Positionen und Verkostungen hinzugefügt, geändert oder entfernt hat. Nur du als Eigentümer siehst das.",
+ "Filtra per persona": "Nach Person filtern",
+ "Tutti": "Alle",
+ "Automatico": "Automatisch",
+ "Ancora nessuna modifica registrata. Da ora in poi comparirà qui.": "Noch keine Änderungen aufgezeichnet. Ab jetzt erscheinen sie hier.",
+ "Si vedono le ultime {n} modifiche.": "Die letzten {n} Änderungen werden angezeigt.",
+ "Chi ha cambiato cosa e quando in questa cantina.": "Wer in diesem Keller was und wann geändert hat.",
+ "Vedi le modifiche": "Änderungen ansehen"
 }

@@ -743,5 +743,22 @@
  "Tocca la griglia o muovi un cursore per dire dove arriva. Finché non lo fai il punto resta fermo.": "Toca la cuadrícula o mueve un control para indicar dónde llega. Hasta entonces el punto queda fijo.",
  "L'ampiezza è lo spazio occupato: 1 = un posto, 3 = tre posti dal bordo, 5 = tutta la larghezza.": "La amplitud es el espacio ocupado: 1 = un lugar, 3 = tres lugares desde el borde, 5 = todo el ancho.",
  "Togli l'arrivo": "Quitar la llegada",
- "Fatto": "Hecho"
+ "Fatto": "Hecho",
+ "vino": "vino",
+ "quantità": "cantidad",
+ "luogo": "lugar",
+ "posizione": "posición",
+ "degustazione": "cata",
+ "ha aggiunto": "añadió",
+ "ha modificato": "modificó",
+ "ha tolto": "quitó",
+ "Attività": "Actividad",
+ "Chi ha aggiunto, modificato o tolto vini, quantità, luoghi, posizioni e degustazioni di questa cantina. Lo vedi solo tu, che sei il proprietario.": "Quién añadió, modificó o quitó vinos, cantidades, lugares, posiciones y catas de esta bodega. Solo lo ves tú, que eres el propietario.",
+ "Filtra per persona": "Filtrar por persona",
+ "Tutti": "Todos",
+ "Automatico": "Automático",
+ "Ancora nessuna modifica registrata. Da ora in poi comparirà qui.": "Aún no hay cambios registrados. A partir de ahora aparecerán aquí.",
+ "Si vedono le ultime {n} modifiche.": "Se ven los últimos {n} cambios.",
+ "Chi ha cambiato cosa e quando in questa cantina.": "Quién cambió qué y cuándo en esta bodega.",
+ "Vedi le modifiche": "Ver los cambios"
 }

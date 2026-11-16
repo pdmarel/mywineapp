@@ -137,6 +137,14 @@ export default async function PaginaImpostazioni({ params, searchParams }: PageP
               )}
             </section>
 
+            <section className="scheda flex flex-col gap-3">
+              <h2 className="text-lg font-medium">{t("Attività")}</h2>
+              <p className="text-sm text-tenue">{t("Chi ha cambiato cosa e quando in questa cantina.")}</p>
+              <Link href={`/cantine/${cantina.id}/attivita`} className="pulsante text-center">
+                {t("Vedi le modifiche")}
+              </Link>
+            </section>
+
             <section className="scheda flex flex-col gap-3 border-vino/40">
               <h2 className="text-lg font-medium text-vino-scuro">{t("Cancella la cantina")}</h2>
               <p className="text-sm">

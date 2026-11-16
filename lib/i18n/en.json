@@ -743,5 +743,22 @@
  "Tocca la griglia o muovi un cursore per dire dove arriva. Finché non lo fai il punto resta fermo.": "Tap the grid or move a slider to say where it ends up. Until you do, the point stays still.",
  "L'ampiezza è lo spazio occupato: 1 = un posto, 3 = tre posti dal bordo, 5 = tutta la larghezza.": "Amplitude is the space taken: 1 = one place, 3 = three places from the edge, 5 = the full width.",
  "Togli l'arrivo": "Remove the end",
- "Fatto": "Done"
+ "Fatto": "Done",
+ "vino": "wine",
+ "quantità": "quantity",
+ "luogo": "place",
+ "posizione": "position",
+ "degustazione": "tasting",
+ "ha aggiunto": "added",
+ "ha modificato": "changed",
+ "ha tolto": "removed",
+ "Attività": "Activity",
+ "Chi ha aggiunto, modificato o tolto vini, quantità, luoghi, posizioni e degustazioni di questa cantina. Lo vedi solo tu, che sei il proprietario.": "Who added, changed or removed wines, quantities, places, positions and tastings in this cellar. Only you, the owner, can see it.",
+ "Filtra per persona": "Filter by person",
+ "Tutti": "All",
+ "Automatico": "Automatic",
+ "Ancora nessuna modifica registrata. Da ora in poi comparirà qui.": "No changes recorded yet. From now on they will appear here.",
+ "Si vedono le ultime {n} modifiche.": "The last {n} changes are shown.",
+ "Chi ha cambiato cosa e quando in questa cantina.": "Who changed what and when in this cellar.",
+ "Vedi le modifiche": "See the changes"
 }

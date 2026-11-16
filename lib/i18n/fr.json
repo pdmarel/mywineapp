@@ -743,5 +743,22 @@
  "Tocca la griglia o muovi un cursore per dire dove arriva. Finché non lo fai il punto resta fermo.": "Touchez la grille ou déplacez un curseur pour dire où il arrive. Tant que vous ne le faites pas, le point reste fixe.",
  "L'ampiezza è lo spazio occupato: 1 = un posto, 3 = tre posti dal bordo, 5 = tutta la larghezza.": "L'ampleur est l'espace occupé : 1 = une place, 3 = trois places depuis le bord, 5 = toute la largeur.",
  "Togli l'arrivo": "Retirer l'arrivée",
- "Fatto": "Terminé"
+ "Fatto": "Terminé",
+ "vino": "vin",
+ "quantità": "quantité",
+ "luogo": "lieu",
+ "posizione": "emplacement",
+ "degustazione": "dégustation",
+ "ha aggiunto": "a ajouté",
+ "ha modificato": "a modifié",
+ "ha tolto": "a retiré",
+ "Attività": "Activité",
+ "Chi ha aggiunto, modificato o tolto vini, quantità, luoghi, posizioni e degustazioni di questa cantina. Lo vedi solo tu, che sei il proprietario.": "Qui a ajouté, modifié ou retiré des vins, quantités, lieux, emplacements et dégustations de cette cave. Seul vous, le propriétaire, le voyez.",
+ "Filtra per persona": "Filtrer par personne",
+ "Tutti": "Tous",
+ "Automatico": "Automatique",
+ "Ancora nessuna modifica registrata. Da ora in poi comparirà qui.": "Aucune modification enregistrée pour l'instant. Elles apparaîtront ici à partir de maintenant.",
+ "Si vedono le ultime {n} modifiche.": "Les {n} dernières modifications sont affichées.",
+ "Chi ha cambiato cosa e quando in questa cantina.": "Qui a changé quoi et quand dans cette cave.",
+ "Vedi le modifiche": "Voir les modifications"
 }
