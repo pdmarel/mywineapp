@@ -114,6 +114,35 @@ export function LocaleCantina({ azione, cantinaId, luogoId, iniziale, contenuti,
         );
       })}
 
+      {mostrato.oggetti.map((o) => {
+        const bottiglie = o.parte ? (contenuti[o.parte]?.bottiglie ?? 0) : 0;
+        return (
+          <section key={o.id} className="scheda flex flex-col gap-2">
+            <h2 className="flex items-baseline justify-between gap-3 text-lg font-medium">
+              <span>{o.nome}</span>
+              <span className="text-sm font-normal text-tenue">
+                {o.larghezza}×{o.altezza}×{o.profondita} cm
+              </span>
+            </h2>
+            <p className="text-xs text-tenue">
+              {t("Dalla parete sinistra {x} cm · dall'ingresso {y} cm", { x: o.x, y: o.y })}
+              {o.z > 0 ? ` · ${t("da terra {z} cm", { z: o.z })}` : ""}
+            </p>
+            {o.parte && (
+              <button
+                type="button"
+                onClick={() => setScelta(o.parte)}
+                aria-pressed={o.parte === scelta}
+                className={`flex min-h-11 items-center justify-between gap-2 rounded-lg border px-3 text-sm ${o.parte === scelta ? "border-inchiostro bg-ambra/20" : "border-bordo bg-sfondo"}`}
+              >
+                <span className="truncate text-tenue">{o.parte}</span>
+                <span className={`tabular-nums ${bottiglie > 0 ? "font-semibold text-vino" : "text-tenue"}`}>{bottiglie}</span>
+              </button>
+            )}
+          </section>
+        );
+      })}
+
       {fuori.length > 0 && (
         <section className="scheda flex flex-col gap-2">
           <h2 className="text-lg font-medium">{t("Posizioni non ancora nel disegno")}</h2>

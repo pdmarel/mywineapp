@@ -3,22 +3,16 @@
 import { useMemo } from "react";
 import { proiettore, useVista3D, type Telecamera, type Vettore } from "./vista3d";
 import { useT } from "@/lib/i18n/client";
-import { disposizione, type Contenuto, type Locale, type Parete } from "@/lib/locale";
+import { GEOMETRIA_PARETE as PARETE, disposizione, type Contenuto, type Locale } from "@/lib/locale";
 
 // La cantina in 3D: il locale come una scatola a fil di ferro, gli scaffali appoggiati alle pareti.
 // La faccia davanti di ogni scaffale è divisa in piani e parti: ogni casella mostra quante bottiglie
 // contiene (più scura = più piena) e si può toccare per vederne il dettaglio.
+// Gli oggetti liberi (tavoli, rack, casse) sono scatole nella posizione scelta: se hanno un nome di posizione,
+// la faccia superiore conta le bottiglie e si può toccare come una parte di scaffale.
 // Si guarda dall'ingresso; si ruota con due dita (o col mouse) come il parallelepipedo della degustazione.
 
 const INIZIALE: Telecamera = { azimut: -1.25, elevazione: 0.5, distanza: 3.6 };
-
-/** Per ogni parete: l'angolo sinistro (guardandola da dentro), la direzione lungo la parete e quella verso l'interno. */
-const PARETE: Record<Parete, (l: Locale) => { o: [number, number]; u: [number, number]; n: [number, number] }> = {
-  fondo: (l) => ({ o: [0, l.profondita], u: [1, 0], n: [0, -1] }),
-  ingresso: (l) => ({ o: [l.larghezza, 0], u: [-1, 0], n: [0, 1] }),
-  sinistra: () => ({ o: [0, 0], u: [0, 1], n: [1, 0] }),
-  destra: (l) => ({ o: [l.larghezza, l.profondita], u: [0, -1], n: [-1, 0] }),
-};
 
 const metri = (m: number) => `${String(Math.round(m * 100) / 100).replace(".", ",")} m`;
 
@@ -86,6 +80,21 @@ export function Locale3D({
       etichette.push({ testo: s.nome, ...p(...sopra) });
     }
 
+    for (const o of locale.oggetti) {
+      const [x0, x1, y0, y1, z0, z1] = [o.x / 100, (o.x + o.larghezza) / 100, o.y / 100, (o.y + o.profondita) / 100, o.z / 100, (o.z + o.altezza) / 100];
+      poligoni.push(
+        { tipo: "faccia", punti: [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]] }, // verso l'ingresso
+        { tipo: "faccia", punti: [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]] }, // verso il fondo
+        { tipo: "faccia", punti: [[x0, y0, z0], [x0, y1, z0], [x0, y1, z1], [x0, y0, z1]] }, // sinistra
+        { tipo: "faccia", punti: [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]] }, // destra
+      );
+      const bottiglie = o.parte ? (contenuti[o.parte]?.bottiglie ?? 0) : 0;
+      massimo = Math.max(massimo, bottiglie);
+      const sopra: Vettore[] = [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]];
+      poligoni.push(o.parte ? { tipo: "cella", punti: sopra, nome: o.parte, bottiglie } : { tipo: "faccia", punti: sopra });
+      etichette.push({ testo: o.nome, ...p((x0 + x1) / 2, (y0 + y1) / 2, z1 + 0.07) });
+    }
+
     const disegnati = poligoni
       .map((g) => {
         const punti = g.punti.map((v) => p(...v));
@@ -135,7 +144,7 @@ export function Locale3D({
           height={altezza}
           viewBox={`0 0 ${larghezza} ${altezza}`}
           role="img"
-          aria-label={t("Il locale in tre dimensioni: {scaffali} scaffali, {bottiglie} bottiglie. Gli stessi dati sono nelle tabelle qui sotto.", { scaffali: locale.scaffali.length, bottiglie: bottiglieTotali })}
+          aria-label={t("Il locale in tre dimensioni: {scaffali} scaffali, {oggetti} oggetti, {bottiglie} bottiglie. Gli stessi dati sono nelle tabelle qui sotto.", { scaffali: locale.scaffali.length, oggetti: locale.oggetti.length, bottiglie: bottiglieTotali })}
         >
           <polygon points={scena.pavimento.map((v) => `${v.x},${v.y}`).join(" ")} fill="#efe7dc" />
           {scena.spigoli.map((s, i) => (

@@ -1,23 +1,29 @@
 "use client";
 
 import {
+  MASSIMO_OGGETTI,
+  MASSIMO_PARTI,
   MASSIMO_PER_PARETE,
   MASSIMO_PIANI,
   PARETI,
   codiceParte,
+  conflittiOggetti,
   disposizione,
   lunghezzaParete,
   nomeProposto,
   partiDi as tuttiINomi,
   partiDoppie,
+  trovaPosto,
   type Locale,
+  type Oggetto,
   type Parete,
   type Scaffale,
 } from "@/lib/locale";
 import { useT } from "@/lib/i18n/client";
 
 // Il modulo con cui si disegna un luogo: le misure del locale e, per ogni scaffale, la parete a cui è
-// appoggiato, le misure, il numero di piani e in quante parti (1, 2 o 3) è diviso ogni piano, con i nomi.
+// appoggiato, le misure, il numero di piani e in quante parti (da 1 a 5) è diviso ogni piano, con i nomi.
+// Poi gli oggetti liberi (tavolo, rack, cassa…): misure e posizione nello spazio del locale.
 // Non salva nulla: consegna la bozza a chi lo contiene, che la mostra subito in 3D e la salva.
 
 type Props = {
@@ -160,6 +166,32 @@ export function EditorLocale({ bozza, suCambio, codici }: Props) {
   }
 
   const doppie = partiDoppie(bozza);
+  const conflitti = conflittiOggetti(bozza);
+
+  const oggetto = (i: number, modifiche: Partial<Oggetto>) =>
+    suCambio({ ...bozza, oggetti: bozza.oggetti.map((o, k) => (k === i ? { ...o, ...modifiche } : o)) });
+
+  function aggiungiOggetto() {
+    const [larghezza, profondita, altezza] = [80, 60, 80];
+    // Nel primo posto libero sul pavimento; se non ce n'è, al centro (e il messaggio dice che si sovrappone).
+    const posto = trovaPosto(bozza, larghezza, profondita) ?? {
+      x: Math.max(0, Math.round((bozza.larghezza * 100 - larghezza) / 2)),
+      y: Math.max(0, Math.round((bozza.profondita * 100 - profondita) / 2)),
+    };
+    const usati = new Set(bozza.oggetti.map((o) => o.nome.toLowerCase()));
+    let n = bozza.oggetti.length + 1;
+    while (usati.has(`oggetto ${n}`)) n++;
+    suCambio({
+      ...bozza,
+      oggetti: [...bozza.oggetti, { id: crypto.randomUUID(), nome: `Oggetto ${n}`, ...posto, z: 0, larghezza, profondita, altezza, parte: "" }],
+    });
+  }
+
+  function testoConflitto(c: (typeof conflitti)[number]) {
+    if (c.tipo === "fuori") return t("«{nome}» esce dal locale.", { nome: c.oggetto });
+    if (c.tipo === "troppo_alto") return t("«{nome}» è più alto del locale.", { nome: c.oggetto });
+    return t("«{nome}» si sovrappone a «{con}».", { nome: c.oggetto, con: c.con });
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -270,7 +302,7 @@ export function EditorLocale({ bozza, suCambio, codici }: Props) {
                     </span>
                     <span className="flex items-center gap-1" role="group" aria-label={t("In quante parti è diviso il piano {n}", { n: k + 1 })}>
                       <span className="text-xs text-tenue">{t("parti")}</span>
-                      {[1, 2, 3].map((n) => (
+                      {Array.from({ length: MASSIMO_PARTI }, (_, k) => k + 1).map((n) => (
                         <button
                           key={n}
                           type="button"
@@ -316,6 +348,64 @@ export function EditorLocale({ bozza, suCambio, codici }: Props) {
           </fieldset>
         );
       })}
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-1 text-sm font-medium">{t("Oggetti nel locale")}</legend>
+        <p className="text-xs text-tenue">
+          {t("Tavoli, rack, casse, botti: ogni oggetto ha le sue misure e una posizione nello spazio del locale, così puoi metterne quanti vuoi, anche staccati dalle pareti. La posizione è la distanza dalla parete sinistra e dall'ingresso (guardando verso il fondo); «da terra» serve per un oggetto appoggiato sopra un altro.")}
+        </p>
+        {bozza.oggetti.map((o, i) => (
+          <div key={o.id} className="flex flex-col gap-3 rounded-xl border border-bordo bg-sfondo p-3">
+            <label className="flex flex-col gap-1 text-sm">
+              {t("Nome dell'oggetto")}
+              <input value={o.nome} onChange={(e) => oggetto(i, { nome: e.target.value.slice(0, 30) })} className="campo min-h-10 px-2" />
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <Misura nome={t("Larghezza")} unita="cm" passo={1} valore={o.larghezza} suCambio={(n) => oggetto(i, { larghezza: n })} />
+              <Misura nome={t("Profondità")} unita="cm" passo={1} valore={o.profondita} suCambio={(n) => oggetto(i, { profondita: n })} />
+              <Misura nome={t("Altezza")} unita="cm" passo={1} valore={o.altezza} suCambio={(n) => oggetto(i, { altezza: n })} />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Misura nome={t("Dalla parete sinistra")} unita="cm" passo={1} valore={o.x} suCambio={(n) => oggetto(i, { x: n })} />
+              <Misura nome={t("Dall'ingresso")} unita="cm" passo={1} valore={o.y} suCambio={(n) => oggetto(i, { y: n })} />
+              <Misura nome={t("Da terra")} unita="cm" passo={1} valore={o.z} suCambio={(n) => oggetto(i, { z: n })} />
+            </div>
+            <label className="flex flex-col gap-1 text-sm">
+              {t("Nome della posizione (facoltativo)")}
+              <input
+                list="posizioni-esistenti"
+                value={o.parte}
+                onChange={(e) => oggetto(i, { parte: codiceParte(e.target.value) })}
+                className={`campo min-h-10 px-2 ${o.parte && doppie.includes(o.parte) ? "border-vino" : ""}`}
+                placeholder={t("nome")}
+                maxLength={20}
+              />
+              <span className="text-xs text-tenue">{t("Se lo scrivi, l'oggetto conta le bottiglie di quella posizione, come una parte di scaffale.")}</span>
+            </label>
+            <button
+              type="button"
+              className="self-start text-sm text-vino underline"
+              onClick={() => suCambio({ ...bozza, oggetti: bozza.oggetti.filter((_, k) => k !== i) })}
+            >
+              {t("Togli l'oggetto {nome}", { nome: o.nome })}
+            </button>
+          </div>
+        ))}
+        {conflitti.length > 0 && (
+          <ul role="alert" className="flex flex-col gap-1 rounded-lg bg-ambra/20 px-3 py-2 text-sm">
+            {conflitti.map((c, k) => (
+              <li key={k}>{testoConflitto(c)}</li>
+            ))}
+          </ul>
+        )}
+        {bozza.oggetti.length < MASSIMO_OGGETTI ? (
+          <button type="button" className="rounded-xl border border-bordo bg-carta px-4 py-3 text-sm font-medium" onClick={aggiungiOggetto}>
+            {t("+ Aggiungi un oggetto")}
+          </button>
+        ) : (
+          <p className="text-sm text-tenue">{t("Hai raggiunto il massimo di {n} oggetti.", { n: MASSIMO_OGGETTI })}</p>
+        )}
+      </fieldset>
 
       {doppie.length > 0 && (
         <p role="alert" className="rounded-lg bg-ambra/20 px-3 py-2 text-sm">
