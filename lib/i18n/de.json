@@ -633,8 +633,6 @@
  "Successivi": "Weiter",
  "Sudore": "Schweiß",
  "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina.": "Auf dem Handy mit zwei Fingern drehen und zum Zoomen aufziehen; am Computer ziehen.",
- "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.": "Auf dem Handy mit zwei Fingern drehen und zum Zoomen aufziehen; am Computer ziehen. Die Zahl zeigt, wie viele Flaschen in diesem Fach liegen (dunkler = voller): Tippe darauf, um zu sehen, welche.",
- "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).": "Auf dem Handy mit zwei Fingern drehen und zum Zoomen aufziehen; am Computer ziehen. Die Zahl zeigt, wie viele Flaschen in diesem Fach liegen (dunkler = voller).",
  "sullo stesso registro": "auf gleichem Niveau",
  "Tabacco": "Tabak",
  "Tabella": "Tabelle",
@@ -776,5 +774,9 @@
  "+ Aggiungi un oggetto": "+ Objekt hinzufügen",
  "Hai raggiunto il massimo di {n} oggetti.": "Du hast das Maximum von {n} Objekten erreicht.",
  "Dalla parete sinistra {x} cm · dall'ingresso {y} cm": "{x} cm von der linken Wand · {y} cm vom Eingang",
- "da terra {z} cm": "{z} cm vom Boden"
+ "da terra {z} cm": "{z} cm vom Boden",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.": "Auf dem Handy mit zwei Fingern drehen, zum Zoomen zusammenziehen und mit drei Fingern ziehen, um die Ansicht zu verschieben; am Computer ziehen. Die Zahl zeigt, wie viele Flaschen in diesem Teil des Regalbodens sind (dunkler = voller): tippe darauf, um sie zu sehen.",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).": "Auf dem Handy mit zwei Fingern drehen, zum Zoomen zusammenziehen und mit drei Fingern ziehen, um die Ansicht zu verschieben; am Computer ziehen. Die Zahl zeigt, wie viele Flaschen in diesem Teil des Regalbodens sind (dunkler = voller).",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina.": "Auf dem Handy mit zwei Fingern drehen, zum Zoomen zusammenziehen und mit drei Fingern ziehen, um die Ansicht zu verschieben; am Computer ziehen.",
+ "Ricentra": "Zentrieren"
 }

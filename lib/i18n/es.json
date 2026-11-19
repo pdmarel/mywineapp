@@ -633,8 +633,6 @@
  "Successivi": "Siguientes",
  "Sudore": "Sudor",
  "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina.": "En el móvil, gira con dos dedos y pellizca para ampliar; en el ordenador, arrastra.",
- "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.": "En el móvil, gira con dos dedos y pellizca para ampliar; en el ordenador, arrastra. El número indica cuántas botellas hay en esa parte de la balda (más oscuro = más lleno): tócala para ver cuáles.",
- "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).": "En el móvil, gira con dos dedos y pellizca para ampliar; en el ordenador, arrastra. El número indica cuántas botellas hay en esa parte de la balda (más oscuro = más lleno).",
  "sullo stesso registro": "en el mismo registro",
  "Tabacco": "Tabaco",
  "Tabella": "Tabla",
@@ -776,5 +774,9 @@
  "+ Aggiungi un oggetto": "+ Añadir un objeto",
  "Hai raggiunto il massimo di {n} oggetti.": "Has llegado al máximo de {n} objetos.",
  "Dalla parete sinistra {x} cm · dall'ingresso {y} cm": "{x} cm desde la pared izquierda · {y} cm desde la entrada",
- "da terra {z} cm": "{z} cm desde el suelo"
+ "da terra {z} cm": "{z} cm desde el suelo",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.": "En el móvil gira con dos dedos, pellizca para ampliar y arrastra con tres dedos para mover la vista; en el ordenador arrastra. El número es cuántas botellas hay en esa parte del estante (más oscuro = más lleno): tócala para ver cuáles.",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).": "En el móvil gira con dos dedos, pellizca para ampliar y arrastra con tres dedos para mover la vista; en el ordenador arrastra. El número es cuántas botellas hay en esa parte del estante (más oscuro = más lleno).",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina.": "En el móvil gira con dos dedos, pellizca para ampliar y arrastra con tres dedos para mover la vista; en el ordenador arrastra.",
+ "Ricentra": "Recentrar"
 }

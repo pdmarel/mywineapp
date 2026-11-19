@@ -632,8 +632,6 @@
  "Successivi": "Suivants",
  "Sudore": "Sueur",
  "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina.": "Sur le téléphone, faites pivoter avec deux doigts et pincez pour zoomer ; sur l'ordinateur, faites glisser.",
- "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.": "Sur le téléphone, faites pivoter avec deux doigts et pincez pour zoomer ; sur l'ordinateur, faites glisser. Le chiffre indique le nombre de bouteilles dans cette section du niveau (plus foncé = plus rempli) : touchez-la pour voir lesquelles.",
- "Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).": "Sur le téléphone, faites pivoter avec deux doigts et pincez pour zoomer ; sur l'ordinateur, faites glisser. Le chiffre indique le nombre de bouteilles dans cette section du niveau (plus foncé = plus rempli).",
  "sullo stesso registro": "dans le même registre",
  "Tabacco": "Tabac",
  "Tabella": "Tableau",
@@ -776,5 +774,9 @@
  "+ Aggiungi un oggetto": "+ Ajouter un objet",
  "Hai raggiunto il massimo di {n} oggetti.": "Vous avez atteint le maximum de {n} objets.",
  "Dalla parete sinistra {x} cm · dall'ingresso {y} cm": "{x} cm depuis le mur de gauche · {y} cm depuis l'entrée",
- "da terra {z} cm": "{z} cm du sol"
+ "da terra {z} cm": "{z} cm du sol",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.": "Sur téléphone, tournez avec deux doigts, pincez pour zoomer et glissez avec trois doigts pour déplacer la vue ; sur ordinateur, glissez. Le nombre est celui des bouteilles de cette partie de l'étagère (plus foncé = plus plein) : touchez-la pour les voir.",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).": "Sur téléphone, tournez avec deux doigts, pincez pour zoomer et glissez avec trois doigts pour déplacer la vue ; sur ordinateur, glissez. Le nombre est celui des bouteilles de cette partie de l'étagère (plus foncé = plus plein).",
+ "Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina.": "Sur téléphone, tournez avec deux doigts, pincez pour zoomer et glissez avec trois doigts pour déplacer la vue ; sur ordinateur, glissez.",
+ "Ricentra": "Recentrer"
 }

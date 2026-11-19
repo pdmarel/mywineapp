@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from "react";
 // e la proiezione prospettica. Lo usano il parallelepipedo della degustazione e la cantina in 3D.
 //
 // Gesti: sul telefono si ruota con DUE dita e si pizzica per ingrandire (un dito resta libero per scorrere
-// la pagina e per toccare); sul computer si trascina col mouse e si ingrandisce con la rotellina.
+// la pagina e per toccare); con TRE dita si trascina per spostare la vista (il centro dell'inquadratura);
+// sul computer si trascina col mouse e si ingrandisce con la rotellina.
 
 export type Telecamera = { azimut: number; elevazione: number; distanza: number };
 export type Vettore = [number, number, number];
+export type Spostamento = { x: number; y: number };
 
 const meno = (a: Vettore, b: Vettore): Vettore => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const scalare = (a: Vettore, b: Vettore) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
@@ -23,7 +25,15 @@ const unitario = (a: Vettore): Vettore => {
  * Restituisce la funzione che porta un punto della scena sullo schermo.
  * La telecamera gira attorno a "centro" guardandolo; z nel risultato è la distanza da chi guarda.
  */
-export function proiettore(t: Telecamera, larghezza: number, altezza: number, focale: number, centro: Vettore = [0, 0, 0]) {
+export function proiettore(
+  t: Telecamera,
+  larghezza: number,
+  altezza: number,
+  focale: number,
+  centro: Vettore = [0, 0, 0],
+  /** Spostamento dell'immagine sullo schermo, in pixel (la vista spostata con tre dita). */
+  spostamento: Spostamento = { x: 0, y: 0 },
+) {
   const occhio: Vettore = [
     centro[0] + t.distanza * Math.cos(t.elevazione) * Math.cos(t.azimut),
     centro[1] + t.distanza * Math.cos(t.elevazione) * Math.sin(t.azimut),
@@ -35,7 +45,7 @@ export function proiettore(t: Telecamera, larghezza: number, altezza: number, fo
   return (p: Vettore) => {
     const v = meno(p, occhio);
     const z = Math.max(0.1, scalare(v, avanti));
-    return { x: larghezza / 2 + (focale * scalare(v, destra)) / z, y: altezza / 2 - (focale * scalare(v, su)) / z, z };
+    return { x: larghezza / 2 + spostamento.x + (focale * scalare(v, destra)) / z, y: altezza / 2 + spostamento.y - (focale * scalare(v, su)) / z, z };
   };
 }
 
@@ -43,7 +53,9 @@ export function useVista3D(iniziale: Telecamera, limiti = { vicino: 1.9, lontano
   const contenitore = useRef<HTMLDivElement>(null);
   const [larghezza, setLarghezza] = useState(340);
   const [camera, setCamera] = useState<Telecamera>(iniziale);
+  const [spostamento, setSpostamento] = useState<Spostamento>({ x: 0, y: 0 });
   const cameraOra = useRef(camera);
+  const spostamentoOra = useRef<Spostamento>({ x: 0, y: 0 });
   const trascinato = useRef(false);
   const ultimoGesto = useRef(0);
 
@@ -78,6 +90,19 @@ export function useVista3D(iniziale: Telecamera, limiti = { vicino: 1.9, lontano
       });
     };
 
+    // Spostare la vista: l'immagine non esce mai del tutto dal riquadro.
+    const sposta = (x: number, y: number) => {
+      const [mx, my] = [el.clientWidth * 0.7, el.clientHeight * 0.7];
+      const nuovo = { x: Math.min(mx, Math.max(-mx, x)), y: Math.min(my, Math.max(-my, y)) };
+      spostamentoOra.current = nuovo;
+      setSpostamento(nuovo);
+    };
+    let trascina: { x: number; y: number; da: Spostamento } | null = null;
+    const centroDita = (e: TouchEvent) => {
+      const t = [...Array.from(e.touches)];
+      return { x: t.reduce((n, d) => n + d.clientX, 0) / t.length, y: t.reduce((n, d) => n + d.clientY, 0) / t.length };
+    };
+
     let dita: { x: number; y: number; apertura: number; camera: Telecamera } | null = null;
     const lettura = (e: TouchEvent) => {
       const [a, b] = [e.touches[0], e.touches[1]];
@@ -88,12 +113,28 @@ export function useVista3D(iniziale: Telecamera, limiti = { vicino: 1.9, lontano
       };
     };
     const inizioDita = (e: TouchEvent) => {
+      if (e.touches.length === 3) {
+        // Tre dita: si sposta la vista. La rotazione in corso si ferma.
+        e.preventDefault();
+        dita = null;
+        trascina = { ...centroDita(e), da: { ...spostamentoOra.current } };
+        ultimoGesto.current = Date.now();
+        return;
+      }
       if (e.touches.length !== 2) return;
       e.preventDefault();
+      trascina = null;
       dita = { ...lettura(e), camera: { ...cameraOra.current } };
       ultimoGesto.current = Date.now();
     };
     const mossaDita = (e: TouchEvent) => {
+      if (e.touches.length === 3 && trascina) {
+        e.preventDefault();
+        const ora = centroDita(e);
+        ultimoGesto.current = Date.now();
+        sposta(trascina.da.x + (ora.x - trascina.x), trascina.da.y + (ora.y - trascina.y));
+        return;
+      }
       if (e.touches.length !== 2 || !dita) return;
       e.preventDefault(); // niente zoom della pagina mentre si ruota
       const ora = lettura(e);
@@ -105,8 +146,11 @@ export function useVista3D(iniziale: Telecamera, limiti = { vicino: 1.9, lontano
       });
     };
     const fineDita = (e: TouchEvent) => {
-      if (dita) ultimoGesto.current = Date.now();
+      if (dita || trascina) ultimoGesto.current = Date.now();
       if (e.touches.length < 2) dita = null;
+      if (e.touches.length < 3) trascina = null;
+      // Da tre dita a due: si riprende a ruotare da dove si è, senza salti.
+      if (e.touches.length === 2 && !dita) dita = { ...lettura(e), camera: { ...cameraOra.current } };
     };
 
     let mouse: { x: number; y: number; camera: Telecamera } | null = null;
@@ -163,5 +207,11 @@ export function useVista3D(iniziale: Telecamera, limiti = { vicino: 1.9, lontano
     return Date.now() - ultimoGesto.current >= 400;
   }
 
-  return { contenitore, larghezza, camera, eUnTocco };
+  /** Riporta la vista al centro (dopo uno spostamento con tre dita). */
+  function ricentra() {
+    spostamentoOra.current = { x: 0, y: 0 };
+    setSpostamento({ x: 0, y: 0 });
+  }
+
+  return { contenitore, larghezza, camera, spostamento, ricentra, spostata: spostamento.x !== 0 || spostamento.y !== 0, eUnTocco };
 }

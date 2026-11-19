@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { proiettore as proiettoreScena, useVista3D, type Telecamera, type Vettore } from "./vista3d";
+import { proiettore as proiettoreScena, useVista3D, type Spostamento, type Telecamera, type Vettore } from "./vista3d";
 import { useT } from "@/lib/i18n/client";
 import { AMPIEZZA_MINIMA, MASSIMO, coloreDi, type Punto } from "@/lib/spazio";
 
@@ -29,8 +29,8 @@ const RAGGIO_TOCCO = 26; // pixel: entro questa distanza un tocco "prende" un pa
 const M = MASSIMO;
 
 /** Restituisce la funzione che porta un punto dello spazio (in valori 0-5) sullo schermo. z = distanza da chi guarda. */
-function proiettore(t: Telecamera, larghezza: number, altezza: number) {
-  const scena = proiettoreScena(t, larghezza, altezza, Math.min(larghezza * 1.62, altezza * 2.3), CENTRO);
+function proiettore(t: Telecamera, larghezza: number, altezza: number, spostamento: Spostamento) {
+  const scena = proiettoreScena(t, larghezza, altezza, Math.min(larghezza * 1.62, altezza * 2.3), CENTRO, spostamento);
   // L'asse dell'ampiezza ha 5 posti (da 1 a 5) e il parallelepipedo li copre tutti, da un bordo all'altro.
   return (persistenza: number, ampiezza: number, intensita: number) =>
     scena([
@@ -81,10 +81,10 @@ export function Spazio3D({
   altezza?: number;
 }) {
   const t = useT();
-  const { contenitore, larghezza, camera, eUnTocco } = useVista3D(INIZIALE);
+  const { contenitore, larghezza, camera, spostamento, ricentra, spostata, eUnTocco } = useVista3D(INIZIALE);
 
   const scena = useMemo(() => {
-    const proietta = proiettore(camera, larghezza, altezza);
+    const proietta = proiettore(camera, larghezza, altezza, spostamento);
     const di = (p: Posizione) => proietta(p.persistenza, p.ampiezza, p.intensita);
     const nodi = suPosizione ? NODI.map((n) => ({ n, s: di(n) })) : [];
     const profondita = nodi.map((x) => x.s.z);
@@ -117,7 +117,7 @@ export function Spazio3D({
         })
         .filter(({ p }) => p.id === selezionato || !nascosti?.includes(p.id)),
     };
-  }, [camera, larghezza, altezza, punti, suPosizione, nascosti, selezionato]);
+  }, [camera, spostamento, larghezza, altezza, punti, suPosizione, nascosti, selezionato]);
 
   function tocco(e: React.MouseEvent<HTMLDivElement>) {
     if (!eUnTocco()) return;
@@ -189,6 +189,15 @@ export function Spazio3D({
         className="relative overflow-hidden rounded-xl bg-sfondo select-none"
         style={{ height: altezza, touchAction: "pan-y", cursor: suPosizione || suSelezione ? "pointer" : "grab" }}
       >
+        {spostata && (
+          <button
+            type="button"
+            onClick={ricentra}
+            className="absolute right-2 top-2 z-10 rounded-lg border border-bordo bg-carta/90 px-2 py-1 text-xs"
+          >
+            {t("Ricentra")}
+          </button>
+        )}
         <svg
           width={larghezza}
           height={altezza}
@@ -296,7 +305,7 @@ export function Spazio3D({
         </svg>
       </div>
       <p className="text-xs text-tenue">
-        {t("Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina.")}{" "}
+        {t("Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina.")}{" "}
         {suPosizione ? `${t("I pallini più marcati sono quelli davanti: per prendere quelli dietro, ruota.")} ` : ""}
         {suSelezione ? `${t("Tocca un punto colorato per modificarlo.")} ` : ""}
         {t("❝ = c'è un commento.")}{" "}

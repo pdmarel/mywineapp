@@ -41,12 +41,12 @@ export function Locale3D({
   altezza?: number;
 }) {
   const t = useT();
-  const { contenitore, larghezza, camera, eUnTocco } = useVista3D(INIZIALE, { vicino: 1.6, lontano: 6, basso: 0.05 });
+  const { contenitore, larghezza, camera, spostamento, ricentra, spostata, eUnTocco } = useVista3D(INIZIALE, { vicino: 1.6, lontano: 6, basso: 0.05 });
 
   const scena = useMemo(() => {
     const { larghezza: L, profondita: P, altezza: H } = locale;
     const scala = 1.7 / Math.max(L, P, H);
-    const proietta = proiettore(camera, larghezza, altezza, Math.min(larghezza * 1.5, altezza * 2), [0, 0, -0.1]);
+    const proietta = proiettore(camera, larghezza, altezza, Math.min(larghezza * 1.5, altezza * 2), [0, 0, -0.1], spostamento);
     /** Da metri nel locale a punto sullo schermo. */
     const p = (x: number, y: number, z: number) => proietta([(x - L / 2) * scala, (y - P / 2) * scala, (z - H / 2) * scala]);
 
@@ -128,7 +128,7 @@ export function Locale3D({
         { testo: metri(H), ...p(-margine * 0.6, -margine * 0.6, H / 2) },
       ],
     };
-  }, [locale, contenuti, camera, larghezza, altezza, t]);
+  }, [locale, contenuti, camera, spostamento, larghezza, altezza, t]);
 
   const bottiglieTotali = scena.disegnati.reduce((n, d) => n + (d.g.tipo === "cella" ? d.g.bottiglie : 0), 0);
 
@@ -139,6 +139,15 @@ export function Locale3D({
         className="relative overflow-hidden rounded-xl bg-sfondo select-none"
         style={{ height: altezza, touchAction: "pan-y", cursor: "grab" }}
       >
+        {spostata && (
+          <button
+            type="button"
+            onClick={ricentra}
+            className="absolute right-2 top-2 z-10 rounded-lg border border-bordo bg-carta/90 px-2 py-1 text-xs"
+          >
+            {t("Ricentra")}
+          </button>
+        )}
         <svg
           width={larghezza}
           height={altezza}
@@ -206,8 +215,8 @@ export function Locale3D({
       </div>
       <p className="text-xs text-tenue">
         {suScelta
-          ? t("Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.")
-          : t("Sul telefono ruota con due dita e pizzica per ingrandire; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).")}
+          ? t("Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno): toccala per vedere quali.")
+          : t("Sul telefono ruota con due dita, pizzica per ingrandire e trascina con tre dita per spostare la vista; sul computer trascina. Il numero è quante bottiglie ci sono in quella parte del piano (più scuro = più pieno).")}
       </p>
     </div>
   );
