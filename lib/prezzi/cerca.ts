@@ -148,7 +148,11 @@ async function leggiPagina(url: string): Promise<{ nome: string; prezzo: number 
 export async function cercaPrezzo(v: VinoDaPrezzare): Promise<EsitoPrezzo> {
   const query = queryPrezzo(v);
   const chiaveNome = parole(v.nome_fantasia).length > 0 ? parole(v.nome_fantasia) : parole(v.denominazione);
-  const chiaveProduttore = parole(v.produttore);
+  // Del produttore contano solo le parole che lo distinguono: quelle che stanno anche nel nome o nella
+  // denominazione («Barbaresco» in «Produttori del Barbaresco») le ha qualunque altro produttore della zona.
+  const comuni = new Set([...parole(v.nome_fantasia), ...parole(v.denominazione)]);
+  const distintive = parole(v.produttore).filter((p) => !comuni.has(p));
+  const chiaveProduttore = distintive.length > 0 ? distintive : parole(v.produttore);
   // Senza produttore e senza un nome non si può riconoscere il vino tra i risultati.
   if (chiaveNome.length === 0 || chiaveProduttore.length === 0) {
     return { trovato: false, motivo: "dati_insufficienti", query };
@@ -195,7 +199,8 @@ export async function cercaPrezzo(v: VinoDaPrezzare): Promise<EsitoPrezzo> {
       // Il nome del vino deve esserci tutto; il produttore almeno in buona parte, nel nome del prodotto
       // o nell'indirizzo della pagina (alcune enoteche lo scrivono solo lì).
       if (copertura(chiaveNome, p.nome) < 1) continue;
-      if (copertura(chiaveProduttore, `${p.nome} ${pagina.url}`) < 0.6) continue;
+      // Metà delle parole basta: le enoteche scrivono «Antinori», non «Marchesi Antinori» (il nome del vino c'è già tutto).
+      if (copertura(chiaveProduttore, `${p.nome} ${pagina.url}`) < 0.5) continue;
       const anno = Number(p.nome.match(/\b(19|20)\d{2}\b/)?.[0]);
       offerte.push({
         nome: p.nome.replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'").replace(/&amp;/g, "&"),

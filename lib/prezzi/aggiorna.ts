@@ -51,6 +51,29 @@ export async function aggiornaPrezzo(admin: SupabaseClient, vino: VinoDaPrezzare
     }
   }
 
+  if (esito.trovato && !esito.annataEsatta) {
+    // Prezzo di un'ALTRA annata. Se il vino ha già un prezzo vero per la sua annata (scritto a mano, arrivato dal
+    // vecchio foglio o letto su un'enoteca per l'annata giusta) quello vale di più e resta. Negli altri casi il
+    // prezzo dell'altra annata si salva, a meno che sia lontanissimo dall'ultimo prezzo (più del triplo o meno di
+    // un terzo): quasi sempre è un altro vino o un altro formato.
+    const { data: ultimo } = await admin
+      .from("prezzi")
+      .select("prezzo, metodo, annata_trovata")
+      .eq("vino_id", vino.id)
+      .not("prezzo", "is", null)
+      .not("metodo", "in", "(stima,non_trovato)")
+      .order("rilevato_il", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const prima = Number(ultimo?.prezzo);
+    const dellaSuaAnnata = !!ultimo && (ultimo.metodo !== "json-ld" || !vino.annata || ultimo.annata_trovata === vino.annata);
+    const fuoriScala = prima > 0 && (esito.offerta.prezzo > prima * 3 || esito.offerta.prezzo < prima / 3);
+    if (dellaSuaAnnata || fuoriScala) {
+      await inserisci(admin, { vino_id: vino.id, prezzo: null, metodo: "non_trovato", provider: "tavily" });
+      const perche = dellaSuaAnnata ? `c'è già ${prima} € per l'annata giusta` : `troppo lontano da ${prima} €`;
+      return { trovato: false, motivo: "nessuna_offerta", dettaglio: `non salvato ${esito.offerta.prezzo} € dell'annata ${esito.offerta.annata ?? "?"} (${esito.offerta.url}): ${perche}`, query: esito.query };
+    }
+  }
   if (esito.trovato) {
     await inserisci(admin, {
       vino_id: vino.id,
@@ -67,7 +90,16 @@ export async function aggiornaPrezzo(admin: SupabaseClient, vino: VinoDaPrezzare
   // Ricerca non riuscita (crediti finiti, servizio giù): niente stima, si riproverà.
   if (esito.motivo === "ricerca_fallita") return esito;
 
-  const stima = await stimaPrezzo(vino, esito.frammenti ?? []);
+  // Una stima non prende mai il posto di un prezzo vero (letto su un'enoteca, scritto a mano o arrivato dal
+  // vecchio foglio): chi ne ha già uno lo tiene, e resta solo la traccia della ricerca andata a vuoto.
+  const { data: veri } = await admin
+    .from("prezzi")
+    .select("id")
+    .eq("vino_id", vino.id)
+    .not("prezzo", "is", null)
+    .not("metodo", "in", "(stima,non_trovato)")
+    .limit(1);
+  const stima = (veri ?? []).length > 0 ? null : await stimaPrezzo(vino, esito.frammenti ?? []);
   if (stima) {
     await inserisci(admin, {
       vino_id: vino.id,
