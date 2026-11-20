@@ -9,7 +9,7 @@ import { TIPOLOGIE, type Vitigno } from "@/lib/vini";
 //
 // Verificato il 14/11/2026: Groq con il modello qwen/qwen3.8-27b legge le immagini (1.000 richieste al giorno
 // sul piano gratuito, ma anche 200.000 token al giorno: circa 40 etichette con due foto). Gemini verificato il
-// 20/11/2026 (vedi sotto). OpenRouter NON è stato provato: manca la chiave. I nomi dei modelli
+// 20/11/2026 (vedi sotto). OpenRouter verificato il 20/11/2026: ultima riserva. I nomi dei modelli
 // cambiano spesso: si impostano da variabile d'ambiente senza toccare il codice.
 
 type Provider = { nome: string; base: string; chiave: string | undefined; modello: string | undefined };
@@ -37,7 +37,9 @@ function provider(nome: string): Provider | null {
         nome,
         base: "https://openrouter.ai/api/v1",
         chiave: process.env.OPENROUTER_API_KEY,
-        modello: process.env.OPENROUTER_MODELLO_VISIONE, // nessun valore predefinito: non verificato
+        // Verificato il 20/11/2026: tra i modelli gratuiti che leggono le immagini questo ha letto bene un'etichetta
+        // (fronte + retro, 7 secondi), ma spesso risponde "troppe richieste" (429): va bene solo come ultima riserva.
+        modello: process.env.OPENROUTER_MODELLO_VISIONE || "google/gemma-4-31b-it:free",
       };
     default:
       return null;

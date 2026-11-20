@@ -1,0 +1,12 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { createClient } from "@supabase/supabase-js";
+const env = Object.fromEntries(readFileSync(".env.local","utf8").split(/\r?\n/).filter(l=>l.includes("=")&&!l.trim().startsWith("#")).map(l=>[l.slice(0,l.indexOf("=")).trim(),l.slice(l.indexOf("=")+1).trim()]));
+const a = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const { data: cant } = await a.from("cantine").select("id,nome");
+const { data } = await a.from("prezzi").select("id,prezzo,rilevato_il,fonte,vini(id,cantina_id,produttore,nome_fantasia,denominazione,annata,tipologia,capacita_cl,giacenze(quantita))").eq("metodo","importato").limit(2000);
+const righe = data.map(p => ({ pid: p.id, vid: p.vini.id, cantina: cant.find(c=>c.id===p.vini.cantina_id)?.nome, prezzo: Number(p.prezzo), fonte: p.fonte, quando: p.rilevato_il.slice(0,10), produttore: p.vini.produttore, nome: p.vini.nome_fantasia, denom: p.vini.denominazione, annata: p.vini.annata, tip: p.vini.tipologia, cl: p.vini.capacita_cl ?? 75, bott: (p.vini.giacenze??[]).reduce((n,g)=>n+g.quantita,0) }));
+writeFileSync(process.argv[2], JSON.stringify(righe, null, 1));
+const pr = righe.map(r=>r.prezzo).sort((x,y)=>x-y);
+console.log("righe", righe.length, "| per cantina", JSON.stringify(righe.reduce((m,r)=>(m[r.cantina]=(m[r.cantina]??0)+1,m),{})), "| min", pr[0], "mediana", pr[pr.length>>1], "max", pr.at(-1), "| in giacenza", righe.filter(r=>r.bott>0).length, "| fonti", JSON.stringify(righe.reduce((m,r)=>(m[r.fonte]=(m[r.fonte]??0)+1,m),{})), "| date", [...new Set(righe.map(r=>r.quando))].slice(0,4).join(","));
+console.log("senza produttore", righe.filter(r=>!r.produttore).length, "| < 4 €", righe.filter(r=>r.prezzo<4).map(r=>`${r.prezzo} ${r.produttore} ${r.nome??r.denom}`).join(" ; "));
+console.log("> 150 €:", righe.filter(r=>r.prezzo>150).map(r=>`${r.prezzo} ${r.produttore} ${r.nome??""} ${r.denom??""} ${r.annata??""} ${r.cl}cl`).join(" ; "));
