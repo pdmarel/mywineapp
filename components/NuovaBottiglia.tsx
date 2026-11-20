@@ -1,5 +1,6 @@
 "use client";
 
+import { CampoQuantita } from "./CampoQuantita";
 import Link from "next/link";
 import { useState } from "react";
 import { CampiEtichetta } from "./CampiEtichetta";
@@ -143,7 +144,7 @@ export function NuovaBottiglia({ cantinaId, posizioni }: { cantinaId: string; po
           />
         </div>
 
-        <div className="grid grid-cols-[1fr_6rem] gap-3">
+        <div className="grid grid-cols-[1fr_auto] items-end gap-3">
           <label className="flex flex-col gap-1 text-sm font-medium">
             {t("Posizione")}
             <select name="posizione_id" defaultValue={ricorda.posizioneId} className="campo">
@@ -163,17 +164,10 @@ export function NuovaBottiglia({ cantinaId, posizioni }: { cantinaId: string; po
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-sm font-medium">
+          <div className="flex flex-col gap-1 text-sm font-medium">
             {t("Bottiglie")}
-            <input
-              name="quantita"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              defaultValue={1}
-              className="campo text-center"
-            />
-          </label>
+            <CampoQuantita name="quantita" predefinito={1} min={0} etichetta={t("Bottiglie")} />
+          </div>
         </div>
 
         <CampiEtichetta predefiniti={{ tipologia: ricorda.tipologia }} />

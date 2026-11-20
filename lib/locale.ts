@@ -233,3 +233,16 @@ export function trovaPosto(locale: Locale, larghezza: number, profondita: number
   }
   return null;
 }
+
+/**
+ * Cambia il nome di una parte (di scaffale o di oggetto) in un disegno già salvato, senza toccare il resto.
+ * `a` vuoto la svuota: la parte resta nel disegno ma senza posizione. Lavora sul JSON grezzo del database.
+ */
+export function sostituisciParte(grezzo: unknown, da: string, a: string): unknown {
+  if (!grezzo || typeof grezzo !== "object") return grezzo;
+  const copia = JSON.parse(JSON.stringify(grezzo)) as { scaffali?: { piani?: { parti?: unknown[] }[] }[]; oggetti?: { parte?: unknown }[] };
+  for (const s of copia.scaffali ?? [])
+    for (const p of s.piani ?? []) p.parti = (p.parti ?? []).map((x) => (x === da ? a : x));
+  for (const o of copia.oggetti ?? []) if (o.parte === da) o.parte = a;
+  return copia;
+}

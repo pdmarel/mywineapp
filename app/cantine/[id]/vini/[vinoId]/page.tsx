@@ -1,3 +1,4 @@
+import { CampoQuantita } from "@/components/CampoQuantita";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { FormVino } from "@/components/FormVino";
@@ -291,7 +292,7 @@ export default async function PaginaVino({
                     </summary>
                     <form
                       action={spostaBottiglie}
-                      className="mt-2 grid grid-cols-[1fr_4.5rem_auto] items-end gap-2 pr-1"
+                      className="mt-2 flex flex-wrap items-end gap-2 pr-1"
                     >
                       <input
                         type="hidden"
@@ -304,7 +305,7 @@ export default async function PaginaVino({
                         name="posizione_id"
                         required
                         defaultValue=""
-                        className="campo"
+                        className="campo min-w-0 basis-full"
                         aria-label={t("Nuova posizione")}
                       >
                         <option value="" disabled>
@@ -325,16 +326,7 @@ export default async function PaginaVino({
                           </optgroup>
                         ))}
                       </select>
-                      <input
-                        name="quantita"
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        max={g.quantita}
-                        defaultValue={g.quantita}
-                        className="campo text-center"
-                        aria-label={t("Quante bottiglie spostare")}
-                      />
+                      <CampoQuantita name="quantita" predefinito={g.quantita} min={1} max={g.quantita} etichetta={t("Quante bottiglie spostare")} />
                       <button type="submit" className="pulsante">
                         {t("Sposta")}
                       </button>
@@ -347,11 +339,11 @@ export default async function PaginaVino({
 
           <form
             action={aggiungiGiacenza}
-            className="grid grid-cols-[1fr_5rem_auto] items-end gap-2"
+            className="flex flex-wrap items-end gap-2"
           >
             <input type="hidden" name="cantina_id" value={cantina.id} />
             <input type="hidden" name="vino_id" value={vino.id} />
-            <label className="flex flex-col gap-1 text-sm font-medium">
+            <label className="flex basis-full flex-col gap-1 text-sm font-medium">
               {t("Metti in un'altra posizione")}
               <select
                 name="posizione_id"
@@ -375,15 +367,7 @@ export default async function PaginaVino({
                 ))}
               </select>
             </label>
-            <input
-              name="quantita"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              defaultValue={1}
-              className="campo text-center"
-              aria-label={t("Quante bottiglie")}
-            />
+            <CampoQuantita name="quantita" predefinito={1} min={1} etichetta={t("Quante bottiglie")} />
             <button type="submit" className="pulsante">
               {t("Aggiungi")}
             </button>

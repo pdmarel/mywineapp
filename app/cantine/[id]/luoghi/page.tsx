@@ -4,12 +4,19 @@ import { Testata } from "@/components/Testata";
 import { daTradurre } from "@/lib/i18n/lingue";
 import { traduzione } from "@/lib/i18n/server";
 import { creaClientServer } from "@/lib/supabase/server";
-import { creaLuogo, creaPosizioni } from "@/app/azioni";
+import { PulsanteConConferma } from "@/components/PulsanteConConferma";
+import { creaLuogo, creaPosizioni, rinominaPosizione, togliPosizione } from "@/app/azioni";
 
 const MESSAGGI: Record<string, string> = {
   nome: daTradurre("Manca il nome."),
   doppione: daTradurre("Esiste già un luogo con questo nome."),
   salvataggio: daTradurre("Non sono riuscito a salvare. Riprova."),
+  doppione_posizione: daTradurre("In questo luogo esiste già una posizione con questo nome."),
+  bottiglie: daTradurre("In questa posizione ci sono ancora bottiglie: spostale prima di toglierla."),
+};
+const FATTO: Record<string, string> = {
+  rinominata: daTradurre("Posizione rinominata: le bottiglie sono rimaste dove erano."),
+  tolta: daTradurre("Posizione tolta."),
 };
 
 type Posizione = { id: string; codice: string };
@@ -25,6 +32,7 @@ export default async function PaginaLuoghi({ params, searchParams }: PageProps<"
   const { t } = await traduzione();
   const parametri = await searchParams;
   const errore = typeof parametri.errore === "string" ? MESSAGGI[parametri.errore] : undefined;
+  const fatto = typeof parametri.fatto === "string" ? FATTO[parametri.fatto] : undefined;
 
   const supabase = await creaClientServer();
   const {
@@ -50,6 +58,7 @@ export default async function PaginaLuoghi({ params, searchParams }: PageProps<"
         </Link>
         <h1 className="text-xl font-semibold">{t("Luoghi e posizioni")}</h1>
 
+        {fatto && <p className="rounded-xl bg-ambra/15 p-3 text-sm">{t(fatto)}</p>}
         {errore && (
           <p role="alert" className="rounded-xl bg-vino/10 p-3 text-sm text-vino-scuro">
             {t(errore)}
@@ -80,6 +89,42 @@ export default async function PaginaLuoghi({ params, searchParams }: PageProps<"
                   </li>
                 ))}
               </ul>
+            )}
+            {luogo.posizioni.length > 0 && (
+              <details className="rounded-xl border border-bordo bg-sfondo p-3">
+                <summary className="cursor-pointer text-sm text-vino underline">{t("Rinomina o togli una posizione")}</summary>
+                <p className="mt-2 text-xs text-tenue">
+                  {t("Cambiando il nome le bottiglie restano dove sono e il disegno 3D si aggiorna da solo. Si può togliere solo una posizione vuota.")}
+                </p>
+                <ul className="mt-2 flex flex-col gap-2">
+                  {[...luogo.posizioni].sort(perCodice).map((p) => (
+                    <li key={p.id} className="flex items-center gap-2">
+                      <form action={rinominaPosizione} className="flex min-w-0 flex-1 gap-2">
+                        <input type="hidden" name="cantina_id" value={cantina.id} />
+                        <input type="hidden" name="luogo_id" value={luogo.id} />
+                        <input type="hidden" name="posizione_id" value={p.id} />
+                        <input
+                          name="codice"
+                          required
+                          maxLength={20}
+                          defaultValue={p.codice}
+                          className="campo min-h-10 min-w-0 px-2 text-sm"
+                          aria-label={t("Nuovo nome della posizione {codice}", { codice: p.codice })}
+                        />
+                        <button type="submit" className="shrink-0 rounded-lg border border-bordo bg-carta px-3 text-sm">
+                          {t("Rinomina")}
+                        </button>
+                      </form>
+                      <form action={togliPosizione} className="shrink-0">
+                        <input type="hidden" name="cantina_id" value={cantina.id} />
+                        <input type="hidden" name="luogo_id" value={luogo.id} />
+                        <input type="hidden" name="posizione_id" value={p.id} />
+                        <PulsanteConConferma testo={t("Togli")} domanda={t("Togliere la posizione {codice}?", { codice: p.codice })} />
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             )}
             <form action={creaPosizioni} className="flex gap-2">
               <input type="hidden" name="cantina_id" value={cantina.id} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { accodaLettura } from "./lettura-coda";
 import { daTradurre } from "@/lib/i18n/lingue";
 import { creaClientBrowser } from "@/lib/supabase/browser";
 import { BUCKET_ETICHETTE, percorsoMini, type CampiVino } from "@/lib/vini";
@@ -187,7 +188,8 @@ async function inviaUno(record: Sospeso, userId: string): Promise<void> {
   // già compilata che la lettura non arricchisce resta confermata. Se la richiesta non parte (rete, quota) non è
   // un problema: ci pensa il lavoro notturno, e resta il pulsante nella scheda del vino.
   if (record.foto.fronte || record.foto.retro) {
-    void fetch(`/api/vini/${record.id}/leggi?auto=1`, { method: "POST", keepalive: true }).catch(() => {});
+    // Una alla volta e distanziate: partendo tutte insieme il servizio gratuito le respinge quasi tutte.
+    accodaLettura(record.id);
   }
 }
 

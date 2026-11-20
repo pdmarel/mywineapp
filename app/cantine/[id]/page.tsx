@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LeggiCoda } from "@/components/LeggiCoda";
 import { LinkInserimento } from "@/components/LinkInserimento";
 import { notFound, redirect } from "next/navigation";
 import { Testata } from "@/components/Testata";
@@ -141,6 +142,8 @@ export default async function PaginaCantina({ params, searchParams }: PageProps<
             {t("+ Bottiglia")}
           </LinkInserimento>
         </div>
+
+        <LeggiCoda ids={vini.filter((v) => (v.stato === "in_coda" || v.stato === "da_analizzare") && (v.foto_fronte || v.foto_retro)).map((v) => v.id)} />
 
         {parametro(parametri.fatto) === "vino_cancellato" && (
           <p className="rounded-xl bg-ambra/15 p-3 text-sm">{t("Vino eliminato.")}</p>
