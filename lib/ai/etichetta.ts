@@ -8,7 +8,8 @@ import { TIPOLOGIE, type Vitigno } from "@/lib/vini";
 // Tutti parlano il protocollo "compatibile OpenAI": cambia solo indirizzo, chiave e modello.
 //
 // Verificato il 14/11/2026: Groq con il modello qwen/qwen3.8-27b legge le immagini (1.000 richieste al giorno
-// sul piano gratuito). Gemini e OpenRouter NON sono stati provati: mancano le chiavi. I nomi dei modelli
+// sul piano gratuito, ma anche 200.000 token al giorno: circa 40 etichette con due foto). Gemini verificato il
+// 20/11/2026 (vedi sotto). OpenRouter NON è stato provato: manca la chiave. I nomi dei modelli
 // cambiano spesso: si impostano da variabile d'ambiente senza toccare il codice.
 
 type Provider = { nome: string; base: string; chiave: string | undefined; modello: string | undefined };
@@ -27,7 +28,9 @@ function provider(nome: string): Provider | null {
         nome,
         base: "https://generativelanguage.googleapis.com/v1beta/openai",
         chiave: process.env.GEMINI_API_KEY,
-        modello: process.env.GEMINI_MODELLO_VISIONE, // nessun valore predefinito: non verificato
+        // Verificato il 20/11/2026 su tre etichette vere (fronte + retro): letture corrette in 3-10 secondi.
+        // I modelli "flash" più grandi (3.6, 3.8) vanno fuori tempo o sono sovraccarichi sul piano gratuito.
+        modello: process.env.GEMINI_MODELLO_VISIONE || "gemini-3.5-flash-lite",
       };
     case "openrouter":
       return {

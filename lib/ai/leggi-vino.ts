@@ -6,7 +6,9 @@ import { creaClientAdmin } from "@/lib/supabase/admin";
 import { BUCKET_ETICHETTE } from "@/lib/vini";
 
 // Legge l'etichetta di un vino dalle sue foto e salva la PROPOSTA in vini.estrazione.
-// Non tocca i campi del vino: i dati diventano definitivi solo quando l'utente li controlla e salva.
+// I dati letti riempiono subito i campi del vino che sono ANCORA VUOTI (così il vino ha un nome nella lista e
+// entra nei riepiloghi per tipologia e annata); ciò che l'utente ha scritto non viene mai sovrascritto.
+// La scheda resta «da confermare» finché l'utente non la controlla e salva.
 // Usata dalla scheda del vino (con i permessi dell'utente) e dal lavoro notturno (con il client di servizio).
 
 export type EsitoLetturaVino =
@@ -34,16 +36,18 @@ async function registraUso(tentativi: Tentativo[]) {
 
 const CAMPI_LETTI = ["nome_fantasia", "denominazione", "produttore", "annata", "tipologia", "alcool", "capacita_cl", "vitigni"] as const;
 
-/** La lettura porta qualcosa di nuovo? Cioè: riempie almeno un campo che nel vino è ancora vuoto. */
-function portaNovita(vino: Record<string, unknown>, dati: unknown): boolean {
+/** I campi che la lettura può riempire: quelli ancora vuoti nel vino per cui l'etichetta dice qualcosa. */
+export function campiDaRiempire(vino: Record<string, unknown>, dati: unknown): Record<string, unknown> {
   const letti = (dati ?? {}) as Record<string, unknown>;
-  return CAMPI_LETTI.some((campo) => {
+  const nuovi: Record<string, unknown> = {};
+  for (const campo of CAMPI_LETTI) {
     const mio = vino[campo];
     const suo = letti[campo];
-    const vuotoMio = mio === null || mio === undefined || (Array.isArray(mio) && mio.length === 0);
+    const vuotoMio = mio === null || mio === undefined || mio === "" || (Array.isArray(mio) && mio.length === 0);
     const vuotoSuo = suo === null || suo === undefined || suo === "" || (Array.isArray(suo) && suo.length === 0);
-    return vuotoMio && !vuotoSuo;
-  });
+    if (vuotoMio && !vuotoSuo) nuovi[campo] = suo;
+  }
+  return nuovi;
 }
 
 /**
@@ -102,10 +106,12 @@ export async function leggiVino(
 
   // Anche un vino già confermato torna "da confermare": chi ha chiesto la rilettura deve controllarla.
   // Unica eccezione: la lettura automatica che non aggiunge nulla a una scheda già confermata.
-  const stato = opzioni.soloNovita && vino.stato === "confermato" && !portaNovita(vino, esito.dati) ? "confermato" : "da_confermare";
+  const nuovi = campiDaRiempire(vino, esito.dati);
+  const stato = opzioni.soloNovita && vino.stato === "confermato" && Object.keys(nuovi).length === 0 ? "confermato" : "da_confermare";
   const { error } = await supabase
     .from("vini")
     .update({
+      ...nuovi,
       estrazione: {
         dati: esito.dati,
         provider: esito.provider,
