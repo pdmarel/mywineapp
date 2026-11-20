@@ -5,7 +5,8 @@ import { aggiornaPrezzo } from "@/lib/prezzi/aggiorna";
 import { creaClientAdmin } from "@/lib/supabase/admin";
 import { creaClientServer } from "@/lib/supabase/server";
 
-// Cerca il prezzo corrente di un vino e lo aggiunge allo storico.
+// Cerca il prezzo corrente di un vino e lo aggiunge allo storico. Se non è in vendita online salva un prezzo
+// di riferimento stimato, con la sua affidabilità.
 export const maxDuration = 60;
 
 const MESSAGGI = {
@@ -48,6 +49,10 @@ export async function POST(_richiesta: Request, { params }: { params: Promise<{ 
   }
 
   const esito = await aggiornaPrezzo(creaClientAdmin(), vino);
+  if (!esito.trovato && esito.stima) {
+    // Non in vendita online (o dati incompleti): c'è comunque un prezzo di riferimento stimato.
+    return NextResponse.json({ ok: true, stima: esito.stima });
+  }
   if (!esito.trovato) {
     if (esito.dettaglio) console.error("Ricerca prezzo:", esito.dettaglio);
     return NextResponse.json(
@@ -55,5 +60,5 @@ export async function POST(_richiesta: Request, { params }: { params: Promise<{ 
       { status: esito.motivo === "ricerca_fallita" ? 502 : 404 },
     );
   }
-  return NextResponse.json({ ok: true, offerta: esito.offerta, annataEsatta: esito.annataEsatta });
+  return NextResponse.json({ ok: true, offerta: esito.offerta, annataEsatta: esito.annataEsatta, affidabilita: esito.affidabilita });
 }

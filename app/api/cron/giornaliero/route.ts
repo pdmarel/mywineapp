@@ -6,12 +6,13 @@ import { creaClientAdmin } from "@/lib/supabase/admin";
 // Lavoro notturno, chiamato da Vercel una volta al giorno (vercel.json).
 //  1. Tocca il database: sul piano gratuito Supabase mette in pausa i progetti fermi da 7 giorni.
 //  2. Riprova le etichette rimaste in coda (quota finita al momento della foto).
-//  3. Aggiorna pochi prezzi: prima i vini in giacenza che non ne hanno mai avuto uno, poi i più vecchi.
-// Bilancio: PREZZI_AL_GIORNO ricerche × 30 giorni deve stare largo dentro i 1.000 crediti mensili di Tavily,
+//  3. Aggiorna alcuni prezzi: prima i vini in giacenza che non ne hanno mai avuto uno, poi i più vecchi.
+//     Chi non è in vendita online riceve un prezzo di riferimento stimato (vedi lib/prezzi/stima.ts).
+// Bilancio: PREZZI_AL_GIORNO ricerche × 30 giorni (600) deve stare dentro i 1.000 crediti mensili di Tavily,
 // lasciando spazio alle ricerche fatte a mano dall'app.
 export const maxDuration = 300;
 
-const PREZZI_AL_GIORNO = 8;
+const PREZZI_AL_GIORNO = 20;
 const ETICHETTE_AL_GIORNO = 10;
 const GIORNI_PRIMA_DI_RICERCARE = 45;
 
@@ -26,7 +27,6 @@ export async function GET(richiesta: Request) {
     admin
       .from("vini")
       .select("id, nome_fantasia, denominazione, produttore, annata, capacita_cl, giacenze(quantita)")
-      .not("produttore", "is", null)
       .limit(5000),
     admin.from("prezzi").select("vino_id, rilevato_il").neq("metodo", "manuale").order("rilevato_il", { ascending: false }).limit(20000),
   ]);
@@ -38,6 +38,8 @@ export async function GET(richiesta: Request) {
 
   const soglia = Date.now() - GIORNI_PRIMA_DI_RICERCARE * 24 * 3600 * 1000;
   const daFare = (vini ?? [])
+    // Basta un dato per avere almeno una stima; senza produttore non si consuma nessun credito di ricerca.
+    .filter((v) => v.produttore || v.nome_fantasia || v.denominazione)
     .filter((v) => ((v.giacenze ?? []) as { quantita: number }[]).some((g) => g.quantita > 0))
     .filter((v) => (ultima.get(v.id) ?? 0) < soglia)
     .sort((a, b) => (ultima.get(a.id) ?? 0) - (ultima.get(b.id) ?? 0))
@@ -67,7 +69,7 @@ export async function GET(richiesta: Request) {
     const e = await aggiornaPrezzo(admin, v);
     esiti.push({
       vino: [v.nome_fantasia ?? v.denominazione, v.annata].filter(Boolean).join(" "),
-      esito: e.trovato ? `${e.offerta.prezzo} € (${e.offerta.fonte})` : e.motivo,
+      esito: e.trovato ? `${e.offerta.prezzo} € (${e.offerta.fonte}, ${e.affidabilita}%)` : e.stima ? `stima ${e.stima.prezzo} € (${e.stima.affidabilita}%)` : e.motivo,
     });
     if (!e.trovato && e.motivo === "ricerca_fallita") break; // crediti finiti o servizio giù: inutile insistere
   }

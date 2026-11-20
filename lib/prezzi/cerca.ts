@@ -34,9 +34,29 @@ export type VinoDaPrezzare = {
 
 export type Offerta = { nome: string; prezzo: number; annata: number | null; fonte: string; url: string };
 
+/** Titolo e testo di un risultato della ricerca: servono alla stima quando non c'è un'offerta sicura. */
+export type Frammento = { titolo: string; testo: string; url: string };
+
 export type EsitoPrezzo =
-  | { trovato: true; offerta: Offerta; annataEsatta: boolean; alternative: number; query: string }
-  | { trovato: false; motivo: "dati_insufficienti" | "ricerca_fallita" | "nessuna_offerta"; dettaglio?: string; query: string };
+  | { trovato: true; offerta: Offerta; annataEsatta: boolean; alternative: number; affidabilita: number; query: string }
+  | {
+      trovato: false;
+      motivo: "dati_insufficienti" | "ricerca_fallita" | "nessuna_offerta";
+      dettaglio?: string;
+      query: string;
+      frammenti?: Frammento[];
+    };
+
+/**
+ * Quanto ci si può fidare di un prezzo letto su un'enoteca (0-100).
+ * Stessa annata (o vino senza annata): 88, più 3 punti per ogni altra enoteca che lo conferma (fino a 97).
+ * Altra annata: 75 meno 5 punti per ogni anno di distanza (minimo 50). Offerta senza annata dichiarata: 65.
+ */
+export function affidabilitaOfferta(annataVino: number | null, offerta: Offerta, annataEsatta: boolean, alternative: number): number {
+  if (annataEsatta) return Math.min(97, (annataVino ? 88 : 82) + 3 * Math.min(alternative, 3));
+  if (annataVino && offerta.annata) return Math.max(50, 75 - 5 * Math.abs(offerta.annata - annataVino));
+  return 65;
+}
 
 const VUOTE = new Set([
   "di", "del", "della", "dei", "delle", "da", "e", "il", "la", "le", "lo", "i", "gli", "in", "a",
@@ -136,7 +156,7 @@ export async function cercaPrezzo(v: VinoDaPrezzare): Promise<EsitoPrezzo> {
   const chiave = process.env.TAVILY_API_KEY;
   if (!chiave) return { trovato: false, motivo: "ricerca_fallita", dettaglio: "manca TAVILY_API_KEY", query };
 
-  let risultati: { url: string }[] = [];
+  let risultati: { url: string; title?: string; content?: string }[] = [];
   try {
     const risposta = await fetch("https://api.tavily.com/search", {
       method: "POST",
@@ -153,7 +173,7 @@ export async function cercaPrezzo(v: VinoDaPrezzare): Promise<EsitoPrezzo> {
       const corpo = await risposta.text();
       return { trovato: false, motivo: "ricerca_fallita", dettaglio: `Tavily ${risposta.status}: ${corpo.slice(0, 150)}`, query };
     }
-    risultati = ((await risposta.json()) as { results?: { url: string }[] }).results ?? [];
+    risultati = ((await risposta.json()) as { results?: { url: string; title?: string; content?: string }[] }).results ?? [];
   } catch (e) {
     return { trovato: false, motivo: "ricerca_fallita", dettaglio: e instanceof Error ? e.message : String(e), query };
   }
@@ -186,7 +206,10 @@ export async function cercaPrezzo(v: VinoDaPrezzare): Promise<EsitoPrezzo> {
       });
     }
   }
-  if (offerte.length === 0) return { trovato: false, motivo: "nessuna_offerta", query };
+  if (offerte.length === 0) {
+    const frammenti = risultati.map((r) => ({ titolo: r.title ?? "", testo: r.content ?? "", url: r.url })).filter((f) => f.titolo || f.testo);
+    return { trovato: false, motivo: "nessuna_offerta", query, frammenti };
+  }
 
   // Annata esatta se c'è (o se il vino non ha annata); altrimenti la più vicina, e lo si dichiara.
   const esatte = v.annata ? offerte.filter((o) => o.annata === v.annata) : offerte;
@@ -203,5 +226,7 @@ export async function cercaPrezzo(v: VinoDaPrezzare): Promise<EsitoPrezzo> {
   // Tra più enoteche si prende il prezzo di mezzo (il più basso dei due centrali): né l'offerta lampo né il più caro.
   scelte.sort((a, b) => a.prezzo - b.prezzo);
   const offerta = scelte[Math.floor((scelte.length - 1) / 2)];
-  return { trovato: true, offerta, annataEsatta: esatte.length > 0, alternative: scelte.length - 1, query };
+  const annataEsatta = esatte.length > 0;
+  const alternative = scelte.length - 1;
+  return { trovato: true, offerta, annataEsatta, alternative, affidabilita: affidabilitaOfferta(v.annata, offerta, annataEsatta, alternative), query };
 }

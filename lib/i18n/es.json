@@ -797,5 +797,8 @@
  "Rinomina o togli una posizione": "Renombrar o quitar una posición",
  "Togliere la posizione {codice}?": "¿Quitar la posición {codice}?",
  "Una bottiglia in meno": "Una botella menos",
- "Una bottiglia in più": "Una botella más"
+ "Una bottiglia in più": "Una botella más",
+ "Prezzo di riferimento stimato": "Precio de referencia estimado",
+ "affidabilità del prezzo": "fiabilidad del precio",
+ "Non l'ho trovato in vendita sulle enoteche online: è una stima di mercato, non un prezzo letto.": "No lo he encontrado a la venta en las enotecas online: es una estimación de mercado, no un precio leído."
 }

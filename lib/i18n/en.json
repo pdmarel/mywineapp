@@ -797,5 +797,8 @@
  "Rinomina o togli una posizione": "Rename or remove a position",
  "Togliere la posizione {codice}?": "Remove position {codice}?",
  "Una bottiglia in meno": "One bottle fewer",
- "Una bottiglia in più": "One more bottle"
+ "Una bottiglia in più": "One more bottle",
+ "Prezzo di riferimento stimato": "Estimated reference price",
+ "affidabilità del prezzo": "price reliability",
+ "Non l'ho trovato in vendita sulle enoteche online: è una stima di mercato, non un prezzo letto.": "I did not find it on sale at online wine shops: this is a market estimate, not a price read from a shop."
 }

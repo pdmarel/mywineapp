@@ -797,5 +797,8 @@
  "Rinomina o togli una posizione": "Renommer ou retirer un emplacement",
  "Togliere la posizione {codice}?": "Retirer l'emplacement {codice} ?",
  "Una bottiglia in meno": "Une bouteille de moins",
- "Una bottiglia in più": "Une bouteille de plus"
+ "Una bottiglia in più": "Une bouteille de plus",
+ "Prezzo di riferimento stimato": "Prix de référence estimé",
+ "affidabilità del prezzo": "fiabilité du prix",
+ "Non l'ho trovato in vendita sulle enoteche online: è una stima di mercato, non un prezzo letto.": "Je ne l'ai pas trouvé en vente sur les cavistes en ligne : c'est une estimation de marché, pas un prix relevé."
 }

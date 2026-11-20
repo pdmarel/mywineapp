@@ -155,12 +155,22 @@ export default async function PaginaVino({
   const haFoto = Boolean(vino.foto_fronte || vino.foto_retro);
 
   // Storico dei prezzi: l'ultimo valido fa testo; l'ultima ricerca dice se è recente o andata a vuoto.
-  const { data: storico } = await supabase
-    .from("prezzi")
-    .select("prezzo, annata_trovata, fonte, url, metodo, rilevato_il")
-    .eq("vino_id", vinoId)
-    .order("rilevato_il", { ascending: false })
-    .limit(10);
+  type RigaPrezzo = {
+    prezzo: number | null;
+    annata_trovata: number | null;
+    fonte: string | null;
+    url: string | null;
+    metodo: string | null;
+    rilevato_il: string;
+    affidabilita?: number | null;
+    nota?: string | null;
+  };
+  const leggiPrezzi = (colonne: string) =>
+    supabase.from("prezzi").select(colonne).eq("vino_id", vinoId).order("rilevato_il", { ascending: false }).limit(10);
+  // Affidabilità e nota esistono dopo la migrazione 0005: senza, si legge come prima.
+  let { data: righePrezzi } = await leggiPrezzi("prezzo, annata_trovata, fonte, url, metodo, rilevato_il, affidabilita, nota");
+  if (!righePrezzi) ({ data: righePrezzi } = await leggiPrezzi("prezzo, annata_trovata, fonte, url, metodo, rilevato_il"));
+  const storico = (righePrezzi ?? []) as unknown as RigaPrezzo[];
   const ultimoPrezzo = (storico ?? []).find((p) => p.prezzo !== null) ?? null;
   const ultimaRicerca = (storico ?? [])[0] ?? null;
   const euro = (n: number) =>
@@ -433,6 +443,8 @@ export default async function PaginaVino({
               <span className="mt-1 block text-sm text-tenue">
                 {ultimoPrezzo.metodo === "manuale" ? (
                   t("Inserito a mano")
+                ) : ultimoPrezzo.metodo === "stima" ? (
+                  t("Prezzo di riferimento stimato")
                 ) : ultimoPrezzo.url ? (
                   <a
                     href={ultimoPrezzo.url}
@@ -447,6 +459,22 @@ export default async function PaginaVino({
                 )}{" "}
                 · {giorno(ultimoPrezzo.rilevato_il)}
               </span>
+              {typeof ultimoPrezzo.affidabilita === "number" && (
+                <span className="mt-1 flex items-center gap-2 text-sm">
+                  <span
+                    className={`rounded-md px-2 py-0.5 font-medium tabular-nums ${ultimoPrezzo.affidabilita >= 80 ? "bg-vino text-white" : ultimoPrezzo.affidabilita >= 55 ? "bg-ambra/40" : "bg-bordo/60"}`}
+                  >
+                    {ultimoPrezzo.affidabilita}%
+                  </span>
+                  <span className="text-tenue">{t("affidabilità del prezzo")}</span>
+                </span>
+              )}
+              {ultimoPrezzo.metodo === "stima" && (
+                <span className="mt-2 block rounded-lg bg-ambra/15 px-2 py-1 text-sm">
+                  {t("Non l'ho trovato in vendita sulle enoteche online: è una stima di mercato, non un prezzo letto.")}
+                  {ultimoPrezzo.nota ? ` ${ultimoPrezzo.nota}` : ""}
+                </span>
+              )}
               {ultimoPrezzo.annata_trovata &&
                 vino.annata &&
                 ultimoPrezzo.annata_trovata !== vino.annata && (
